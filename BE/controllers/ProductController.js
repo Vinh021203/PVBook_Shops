@@ -1,21 +1,58 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const multer = require('multer');
+const path = require('path');
 
-// Create Product
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+});
+const upload = multer({ storage });
+
+exports.upload = upload.single('image');
+
 exports.createProduct = async (req, res) => {
     try {
-        const { productCode, name, image, price, description, category } = req.body;
+        console.log("Request Body:", req.body);
+        console.log("Uploaded File:", req.file);
 
-        // Kiểm tra xem danh mục có tồn tại không
-        const categoryExists = await Category.findById(category);
-        if (!categoryExists) return res.status(404).json({ message: 'Category not found' });
+        // Kiểm tra danh mục
+        const categoryExists = await Category.findById(req.body.category);
+        if (!categoryExists) {
+            console.error("Category not found");
+            return res.status(404).json({ message: "Category not found" });
+        }
 
-        const newProduct = await Product.create({ productCode, name, image, price, description, category });
-        res.status(201).json(newProduct); // Trả về sản phẩm vừa tạo
+        // Tạo sản phẩm mới
+        const newProduct = await Product.create({
+            productCode: req.body.productCode,
+            name: req.body.name,
+            price: req.body.price,
+            description: req.body.description,
+            category: req.body.category,
+            image: req.file?.path || null,
+        });
+
+        res.status(201).json(newProduct);
     } catch (error) {
-        res.status(500).json({ message: error.message }); // Xử lý lỗi
+        console.error("Error creating product:", error);
+        res.status(500).json({ message: error.message });
     }
 };
+
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find().populate('category');
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update and Delete remain unchanged
+
 
 // Get All Products
 exports.getAllProducts = async (req, res) => {

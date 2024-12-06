@@ -1,18 +1,14 @@
 const express = require('express');
-const { 
-    createProduct, 
-    getAllProducts, 
-    updateProduct, 
-    deleteProduct 
-} = require('../controllers/ProductController');
-const { authenticateJWT } = require('../config/auth'); // Middleware xác thực JWT
+const { createProduct, getAllProducts, updateProduct, deleteProduct, upload } = require('../controllers/ProductController');
+const logMiddleware = require('../middlewares/logMiddleware');
+const { upload } = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
-// Định nghĩa các route cho sản phẩm
-router.post('/', createProduct); // Tạo sản phẩm mới
-router.get('/', getAllProducts); // Lấy danh sách sản phẩm
-router.put('/:id', updateProduct); // Cập nhật sản phẩm
-router.delete('/:id', deleteProduct); // Xóa sản phẩm
+// Thêm middleware log
+router.post('/', upload, createProduct);
+router.get('/', logMiddleware, getAllProducts);
+router.put('/:id', upload, logMiddleware, updateProduct);
+router.delete('/:id', logMiddleware, deleteProduct);
 
 module.exports = router;

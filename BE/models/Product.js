@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
-const ProductSchema = new mongoose.Schema({
-    productCode: { type: String, required: true, unique: true }, // Mã Sản Phẩm
-    name: { type: String, required: true }, // Tên
-    image: { type: String }, // Hình Ảnh
-    price: { type: Number, required: true }, // Giá
-    description: { type: String }, // Mô Tả
-    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Liên kết Danh Mục
-    createdAt: { type: Date, default: Date.now }, // Ngày Thêm
-});
+const productSchema = new mongoose.Schema({
+    productCode: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String, required: true },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+    image: { type: String },
+}, { timestamps: true });
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model('Product', productSchema);

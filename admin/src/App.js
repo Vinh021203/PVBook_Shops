@@ -24,7 +24,7 @@ function App() {
 
   return (
     <Router>
-      <div className="d-flex" style={{ height: "100vh" }}>
+      <div className="d-flex">
         {/* Sidebar chiếm 1/4 màn hình */}
         <div className="col-3 bg-dark text-white p-4">
           <Sidebar />
