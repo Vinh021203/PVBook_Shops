@@ -12,7 +12,7 @@ const MemorableProductDisplay = () => {
       price: "299.000đ",
       originalPrice: "399.000đ",
       rating: 4.5,
-      image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
+      // image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
     },
     {
       id: 2,
@@ -21,7 +21,7 @@ const MemorableProductDisplay = () => {
       price: "250.000đ",
       originalPrice: "350.000đ",
       rating: 4.8,
-      image: "https://images.unsplash.com/photo-1532012197267-da84d127e765",
+      // image: "https://images.unsplash.com/photo-1532012197267-da84d127e765",
     },
     {
       id: 3,
@@ -30,7 +30,7 @@ const MemorableProductDisplay = () => {
       price: "320.000đ",
       originalPrice: "420.000đ",
       rating: 4.6,
-      image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d",
+      // image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d",
     },
     {
       id: 4,
@@ -39,7 +39,7 @@ const MemorableProductDisplay = () => {
       price: "300.000đ",
       originalPrice: "400.000đ",
       rating: 4.7,
-      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      // image: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
     },
     {
       id: 5,
@@ -48,7 +48,7 @@ const MemorableProductDisplay = () => {
       price: "270.000đ",
       originalPrice: "370.000đ",
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c",
+      // image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c",
     },
     {
       id: 6,
@@ -57,7 +57,7 @@ const MemorableProductDisplay = () => {
       price: "280.000đ",
       originalPrice: "380.000đ",
       rating: 4.5,
-      image: "https://images.unsplash.com/photo-1589998059171-988d887df646",
+      // image: "https://images.unsplash.com/photo-1589998059171-988d887df646",
     },
     // Add more books...
   ];
@@ -95,7 +95,7 @@ const MemorableProductDisplay = () => {
               {book.originalPrice}
             </span>
           </div>
-          <button className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm">
+          <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm">
             Xem thêm
           </button>
         </div>
@@ -116,7 +116,7 @@ const MemorableProductDisplay = () => {
       <div className="text-center mt-8">
         <button
           onClick={() => setShowAll(!showAll)}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-semibold shadow-md"
+          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-300 font-semibold shadow-md"
         >
           {showAll ? "Ẩn bớt sách" : "Xem tất cả sách"}
         </button>

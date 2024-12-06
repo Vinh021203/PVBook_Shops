@@ -11,7 +11,7 @@ const BookDisplay = () => {
       rating: 4.5,
       price: "299.000đ",
       originalPrice: "399.000đ",
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3",
+      // image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3",
     },
     {
       id: 2,
@@ -20,7 +20,7 @@ const BookDisplay = () => {
       rating: 4.7,
       price: "349.000đ",
       originalPrice: "450.000đ",
-      image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3",
+      // image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3",
     },
     {
       id: 3,
@@ -29,7 +29,7 @@ const BookDisplay = () => {
       rating: 4.6,
       price: "259.000đ",
       originalPrice: "320.000đ",
-      image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3",
+      // image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3",
     },
     {
       id: 4,
@@ -38,7 +38,7 @@ const BookDisplay = () => {
       rating: 4.8,
       price: "299.000đ",
       originalPrice: "399.000đ",
-      image: "https://images.unsplash.com/photo-1525785967371-87ba44b3e6cf?ixlib=rb-4.0.3",
+      // image: "https://images.unsplash.com/photo-1525785967371-87ba44b3e6cf?ixlib=rb-4.0.3",
     },
   ];
 
@@ -57,15 +57,15 @@ const BookDisplay = () => {
   return (
     <div className="flex flex-col md:flex-row w-full p-24">
       {/* Advertisement Banner */}
-      <div className="w-full md:w-1/4 p-6 bg-gradient-to-b from-blue-500 to-blue-600 flex items-center justify-center rounded-3xl ">
+      <div className="w-full md:w-1/4 p-6 bg-gradient-to-b from-green-100 to-blue-600 flex items-center justify-center rounded-3xl ">
         <div className="flex flex-col items-center justify-center text-white space-y-4">
           <img
-            src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3"
+            src=""
             alt="Advertisement"
             className="w-full h-48 object-cover rounded-lg shadow-lg"
             onError={(e) => {
               e.target.src =
-                "https://images.unsplash.com/photo-1516979187457-637abb4f9353?ixlib=rb-4.0.3";
+                "";
             }}
           />
           <h3 className="text-2xl font-bold text-center">Summer Reading Sale!</h3>
@@ -132,7 +132,7 @@ const BookDisplay = () => {
                 </div>
               </div>
               <div className="flex justify-center mt-auto mb-4">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                   Xem thêm
                 </button>
               </div>

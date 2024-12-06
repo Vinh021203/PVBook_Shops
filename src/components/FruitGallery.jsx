@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { logos } from "../assets/assets";
 
 const FruitGallery = () => {
   const [currentFruitIndex, setCurrentFruitIndex] = useState(0);
@@ -7,64 +8,56 @@ const FruitGallery = () => {
   const fruits = [
     {
       name: "Apple",
-      image: "https://images.unsplash.com/photo-1579613832125-5d34a13ffe2a",
+      image: logos.apple,
     },
     {
       name: "Orange",
-      image: "https://images.unsplash.com/photo-1557800636-894a64c1696f",
+      image: logos.orange,
     },
     {
       name: "Banana",
-      image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224",
+      image: logos.apple,
     },
     {
       name: "Strawberry",
-      image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6",
+      image: logos.orange,
     },
     {
       name: "Mango",
-      image: "https://images.unsplash.com/photo-1553279768-865429fa0078",
+      image: logos.apple,
     },
     {
       name: "Pineapple",
-      image: "https://images.unsplash.com/photo-1560807707-8cc77767d783",
+      image: logos.orange,
     },
     {
       name: "Watermelon",
-      image: "https://images.unsplash.com/photo-1514537099923-e399378c2232",
+      image: logos.apple,
     },
     {
       name: "Grapes",
-      image: "https://images.unsplash.com/photo-1578836537282-3171040b7d71",
+      image: logos.orange,
     },
     {
       name: "Blueberry",
-      image: "https://images.unsplash.com/photo-1514996937319-344454492b37",
+      image: logos.apple,
     },
     {
       name: "Peach",
-      image: "https://images.unsplash.com/photo-1620813091289-5ab8482c7c79",
+      image: logos.apple,
     },
   ];
 
   const fruitsToShow = 6; // Number of fruits to display at a time
 
-  const displayedFruits = fruits.slice(
-    currentFruitIndex,
-    currentFruitIndex + fruitsToShow
-  );
+  const displayedFruits = fruits.slice(currentFruitIndex, currentFruitIndex + fruitsToShow);
 
   const nextFruit = () => {
-    setCurrentFruitIndex(
-      (prev) => (prev + fruitsToShow) % fruits.length
-    );
+    setCurrentFruitIndex((prev) => (prev + fruitsToShow) % fruits.length);
   };
 
   const prevFruit = () => {
-    setCurrentFruitIndex(
-      (prev) =>
-        (prev - fruitsToShow + fruits.length) % fruits.length
-    );
+    setCurrentFruitIndex((prev) => (prev - fruitsToShow + fruits.length) % fruits.length);
   };
 
   return (
@@ -91,19 +84,10 @@ const FruitGallery = () => {
       {/* Fruit Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-hidden">
         {displayedFruits.map((fruit, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-lg shadow-md overflow-hidden"
-          >
-            <img
-              src={fruit.image}
-              alt={fruit.name}
-              className="w-full h-48 object-cover"
-            />
+          <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img src={fruit.image} alt={fruit.name} className="w-full h-48 object-cover" />
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {fruit.name}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-800">{fruit.name}</h3>
             </div>
           </div>
         ))}

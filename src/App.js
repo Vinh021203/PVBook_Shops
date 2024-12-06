@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import Header from "./components/Header";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 
 const App = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -29,7 +28,10 @@ const App = () => {
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
-      <Home />
+      <div className="mt-[70px] w-full">
+        <Navbar />
+      </div>
+      <Home/>
     </div>
   );
 };

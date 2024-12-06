@@ -1,7 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import {asset} from "../assets/assets";
 
-const Slider = ({ slides, currentSlide, prevSlide, nextSlide }) => {
+const Slider = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    {
+      title: "Books Collection",
+    },
+    {
+      title: "Reading Time",
+    },
+    {
+      title: "Library",
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
+  };
   return (
     <div className="relative w-full h-[300px] md:h-[500px]">
       {slides.map((slide, index) => (
@@ -11,15 +39,9 @@ const Slider = ({ slides, currentSlide, prevSlide, nextSlide }) => {
             index === currentSlide ? "opacity-100" : "opacity-0"
           }`}
         >
-          <img
-            src={slide.image}
-            alt={slide.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={asset.slider1} alt={slide.title} className="w-full h-full object-cover" />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 md:p-6">
-            <h2 className="text-white text-xl md:text-3xl font-bold">
-              {slide.title}
-            </h2>
+            <h2 className="text-white text-xl md:text-3xl font-bold">{slide.title}</h2>
           </div>
         </div>
       ))}
