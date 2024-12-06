@@ -10,9 +10,9 @@ const { authenticateJWT } = require('../config/auth');
 const router = express.Router();
 
 // Định nghĩa các route cho danh mục
-router.post('/', authenticateJWT, createCategory); // Tạo danh mục mới
+router.post('/', createCategory); // Tạo danh mục mới
 router.get('/', getAllCategories); // Lấy danh sách danh mục
-router.put('/:id', authenticateJWT, updateCategory); // Cập nhật danh mục
-router.delete('/:id', authenticateJWT, deleteCategory); // Xóa danh mục
+router.put('/:id', updateCategory); // Cập nhật danh mục
+router.delete('/:id', deleteCategory); // Xóa danh mục
 
 module.exports = router;

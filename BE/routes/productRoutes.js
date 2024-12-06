@@ -10,9 +10,9 @@ const { authenticateJWT } = require('../config/auth'); // Middleware xác thực
 const router = express.Router();
 
 // Định nghĩa các route cho sản phẩm
-router.post('/', authenticateJWT, createProduct); // Tạo sản phẩm mới
+router.post('/', createProduct); // Tạo sản phẩm mới
 router.get('/', getAllProducts); // Lấy danh sách sản phẩm
-router.put('/:id', authenticateJWT, updateProduct); // Cập nhật sản phẩm
-router.delete('/:id', authenticateJWT, deleteProduct); // Xóa sản phẩm
+router.put('/:id', updateProduct); // Cập nhật sản phẩm
+router.delete('/:id', deleteProduct); // Xóa sản phẩm
 
 module.exports = router;

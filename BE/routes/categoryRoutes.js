@@ -10,8 +10,8 @@ const { authenticateJWT } = require('../config/auth');
 const router = express.Router();
 
 router.get('/', getAllCategories); // Không cần token
-router.post('/', authenticateJWT, createCategory); // Cần token
-router.put('/:id', authenticateJWT, updateCategory); // Cần token
-router.delete('/:id', authenticateJWT, deleteCategory); // Cần token
+router.post('/', createCategory); // Cần token
+router.put('/:id', updateCategory); // Cần token
+router.delete('/:id', deleteCategory); // Cần token
 
 module.exports = router;

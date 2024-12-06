@@ -23,7 +23,7 @@ app.use('/api/products', productRoutes); // API sản phẩm
 app.use('/api/categories', categoryRoutes); // API danh mục
 app.use('/api/orders', orderRoutes); // API đơn hàng
 app.use('/api/employees', employeeRoutes); // API nhân viên
-app.use('/api/auth', authRoutes); // API xác thực
+// app.use('/api/auth', authRoutes); // API xác thực
 
 // Khởi chạy server
 const PORT = process.env.PORT || 5000;
