@@ -5,7 +5,6 @@ import MemorableProductDisplay from "../components/MemorableProductDisplay";
 import BookDisplay from "../components/BookDisplay";
 import FeaturedBooks from "../components/FeaturedBooks";
 import ProductCategoryGrid from "../components/ProductCategoryGrid";
-import Footer from "../components/Footer";
 
 const Home = () => {
   return (
@@ -16,7 +15,6 @@ const Home = () => {
       <FeaturedBooks />
       <BookDisplay />
       <ProductCategoryGrid/>
-      <Footer />
     </div>
   );
 };

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { FaStar, FaHeart } from "react-icons/fa";
 
 const MemorableProductDisplay = () => {
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate(); // Hook for navigation
 
   const books = [
     {
@@ -12,7 +14,6 @@ const MemorableProductDisplay = () => {
       price: "299.000đ",
       originalPrice: "399.000đ",
       rating: 4.5,
-      // image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
     },
     {
       id: 2,
@@ -21,7 +22,6 @@ const MemorableProductDisplay = () => {
       price: "250.000đ",
       originalPrice: "350.000đ",
       rating: 4.8,
-      // image: "https://images.unsplash.com/photo-1532012197267-da84d127e765",
     },
     {
       id: 3,
@@ -30,45 +30,27 @@ const MemorableProductDisplay = () => {
       price: "320.000đ",
       originalPrice: "420.000đ",
       rating: 4.6,
-      // image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d",
     },
-    {
-      id: 4,
-      title: "React Deep Dive",
-      author: "Sarah Johnson",
-      price: "300.000đ",
-      originalPrice: "400.000đ",
-      rating: 4.7,
-      // image: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-    },
-    {
-      id: 5,
-      title: "JavaScript Mastery",
-      author: "Emily Davis",
-      price: "270.000đ",
-      originalPrice: "370.000đ",
-      rating: 4.9,
-      // image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c",
-    },
-    {
-      id: 6,
-      title: "Web Development Guide",
-      author: "Peter Chang",
-      price: "280.000đ",
-      originalPrice: "380.000đ",
-      rating: 4.5,
-      // image: "https://images.unsplash.com/photo-1589998059171-988d887df646",
-    },
-    // Add more books...
   ];
 
   const displayedBooks = showAll ? books : books.slice(0, 5);
+
+  const handleNavigate = (bookId) => {
+    navigate(`/book-detail/${bookId}`); // Navigate to the detail page
+    setTimeout(() => {
+      // Scroll down after navigation
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 100); // Add a slight delay to ensure the page has navigated
+  };
 
   const BookCard = ({ book }) => (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
       <div className="relative">
         <img
-          src={book.image}
+          src="https://via.placeholder.com/150"
           alt={book.title}
           className="w-full h-48 object-cover"
           onError={(e) => {
@@ -95,7 +77,10 @@ const MemorableProductDisplay = () => {
               {book.originalPrice}
             </span>
           </div>
-          <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm">
+          <button
+            onClick={() => handleNavigate(book.id)} // Use handleNavigate
+            className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
+          >
             Xem thêm
           </button>
         </div>

@@ -24,9 +24,9 @@ const Navbar = () => {
     },
     { id: 3, name: "Sản phẩm khuyến mãi", link: "/promotions" },
     { id: 4, name: "Tin tức", link: "/news" },
-    { id: 5, name: "Giới thiệu", link: "/about" },
+    { id: 5, name: "Giới thiệu", link: "/introduction" },
     { id: 6, name: "Liên hệ", link: "/contact" },
-    { id: 8, name: "Chính sách thành viên", link: "/member-policy" },
+    { id: 8, name: "Chính sách thành viên", link: "/memberpolicy" },
   ];
 
   const toggleMenu = () => {
@@ -34,7 +34,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-gray-800 text-white w-full fixed top-[75px] z-50" role="navigation" aria-label="Main navigation">
+    <div className="bg-green-100 text-black-100 flex w-full fixed top-[70px] z-40" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="hidden md:block w-full">

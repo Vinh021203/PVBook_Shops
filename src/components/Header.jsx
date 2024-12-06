@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FiSearch, FiChevronDown } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { BsCart3 } from "react-icons/bs";
@@ -55,10 +56,12 @@ const Header = ({
           {/* User Menu */}
           <div className={`flex items-center space-x-4 ${isMobileMenuOpen ? "block" : "hidden md:flex"}`}>
             <button className="relative p-2 hover:bg-gray-100 rounded-full">
-              <BsCart3 className="h-6 w-6 text-gray-600" />
-              <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
+              <Link to="/shoppingcart">
+                <BsCart3 className="h-6 w-6 text-gray-600" />
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  0
+                </span>
+              </Link>
             </button>
             <div className="relative">
               <button onClick={toggleDropdown} className="flex items-center space-x-2 focus:outline-none">
@@ -72,16 +75,38 @@ const Header = ({
                 />
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Profile
-                  </a>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Orders
-                  </a>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Log Out
-                  </a>
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-[60]">
+                  {/* Nếu đã đăng nhập */}
+                  {localStorage.getItem("isLoggedIn") ? (
+                    <>
+                      <a
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Profile
+                      </a>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          if (window.confirm("Do you want to log out?")) {
+                            // Log out logic
+                            localStorage.removeItem("isLoggedIn");
+                            window.location.reload();
+                          }
+                        }}
+                      >
+                        Log Out
+                      </a>
+                    </>
+                  ) : (
+                    <a
+                      href="/authform"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Login
+                    </a>
+                  )}
                 </div>
               )}
             </div>
