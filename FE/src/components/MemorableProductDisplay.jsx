@@ -50,11 +50,11 @@ const MemorableProductDisplay = () => {
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
       <div className="relative">
         <img
-          src="https://via.placeholder.com/150"
+          src="https://product.hstatic.net/200000612501/product/delirium_1_-_benh_dich_yeu_599f3d68afe3426eaa2b339eb4b4ac15_medium.jpg"
           alt={book.title}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            e.target.src = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e";
+            e.target.src = "https://product.hstatic.net/200000612501/product/delirium_1_-_benh_dich_yeu_599f3d68afe3426eaa2b339eb4b4ac15_medium.jpg";
           }}
         />
         <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors duration-300">
@@ -70,16 +70,16 @@ const MemorableProductDisplay = () => {
           <FaStar className="text-yellow-400" />
           <span className="ml-1 text-sm text-gray-600">{book.rating}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-lg font-bold text-red-600">{book.price}</span>
-            <span className="ml-2 text-sm text-gray-400 line-through">
-              {book.originalPrice}
-            </span>
-          </div>
+        <div className="mb-4">
+          <span className="text-lg font-bold text-red-600">{book.price}</span>
+          <span className="ml-2 text-sm text-gray-400 line-through">
+            {book.originalPrice}
+          </span>
+        </div>
+        <div>
           <button
-            onClick={() => handleNavigate(book.id)} // Use handleNavigate
-            className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
+            onClick={() => handleNavigate(book.id)}
+            className="w-full px-3 py-2 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
           >
             Xem thêm
           </button>

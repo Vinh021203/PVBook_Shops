@@ -11,7 +11,7 @@ const BookDisplay = () => {
       rating: 4.5,
       price: "299.000đ",
       originalPrice: "399.000đ",
-      // image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3",
+      image: "https://product.hstatic.net/200000612501/product/di_san_kinh_hoang_e1a86091764044418bfb5192162469b1_medium.jpg",
     },
     {
       id: 2,
@@ -20,7 +20,7 @@ const BookDisplay = () => {
       rating: 4.7,
       price: "349.000đ",
       originalPrice: "450.000đ",
-      // image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3",
+      image: "https://product.hstatic.net/200000612501/product/di_san_kinh_hoang_e1a86091764044418bfb5192162469b1_medium.jpg",
     },
     {
       id: 3,
@@ -29,7 +29,7 @@ const BookDisplay = () => {
       rating: 4.6,
       price: "259.000đ",
       originalPrice: "320.000đ",
-      // image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3",
+      image: "https://product.hstatic.net/200000612501/product/di_san_kinh_hoang_e1a86091764044418bfb5192162469b1_medium.jpg",
     },
     {
       id: 4,
@@ -38,7 +38,7 @@ const BookDisplay = () => {
       rating: 4.8,
       price: "299.000đ",
       originalPrice: "399.000đ",
-      // image: "https://images.unsplash.com/photo-1525785967371-87ba44b3e6cf?ixlib=rb-4.0.3",
+      image: "https://product.hstatic.net/200000612501/product/di_san_kinh_hoang_e1a86091764044418bfb5192162469b1_medium.jpg",
     },
   ];
 
@@ -55,17 +55,17 @@ const BookDisplay = () => {
   const visibleBooks = books.slice(startIndex, startIndex + 4);
 
   return (
-    <div className="flex flex-col md:flex-row w-full p-24">
+    <div className="flex flex-col md:flex-row w-full p-24 container mx-auto px-4 py-8">
       {/* Advertisement Banner */}
       <div className="w-full md:w-1/4 p-6 bg-gradient-to-b from-green-100 to-blue-600 flex items-center justify-center rounded-3xl ">
         <div className="flex flex-col items-center justify-center text-white space-y-4">
           <img
-            src=""
+            src="https://bookbuy.vn/Res/Images/Banner/e257f889-aa02-45ec-85bc-700bac3ef1f7.jpg?w=320&h=455&mode=crop&anchor=topcenter"
             alt="Advertisement"
-            className="w-full h-48 object-cover rounded-lg shadow-lg"
+            className="w-full h-55 object-cover rounded-lg shadow-lg"
             onError={(e) => {
               e.target.src =
-                "";
+                "https://bookbuy.vn/Res/Images/Banner/e257f889-aa02-45ec-85bc-700bac3ef1f7.jpg?w=320&h=455&mode=crop&anchor=topcenter";
             }}
           />
           <h3 className="text-2xl font-bold text-center">Summer Reading Sale!</h3>
@@ -81,7 +81,7 @@ const BookDisplay = () => {
       {/* Book Display */}
       <div className="w-full md:w-3/4 p-6 flex flex-col justify-center">
         <div className="flex justify-between items-center mb-8 border-b pb-4">
-          <h2 className="text-3xl font-bold text-gray-800">Featured Books</h2>
+          <h2 className="text-3xl font-bold text-green-800">Sách Nổi Bật</h2>
           <div className="flex space-x-2">
             <button
               onClick={handlePrevious}

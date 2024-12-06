@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import Home from "./pages/HomePage";
+import FooterHighlights from "./components/FooterHighlights"
 import MemberPolicyPage from "./pages/MemberPolicyPage";
 import ContactPage from "./pages/ContactPage"
 import IntroductionPage from "./pages/IntroductionPage";
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/book-detail/:id" element={<BookDetailPage />} />
         </Routes>
+        <FooterHighlights />
         <Footer />
       </div>
     </Router>

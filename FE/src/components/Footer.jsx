@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Company Information */}
-          <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="space-y-6 p-6  rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-2xl font-bold text-green-800 border-b border-green-200 pb-3">PVBook Shop</h3>
             <p className="text-sm leading-relaxed text-gray-600">
               Chúng tôi tự hào là điểm đến lý tưởng cho những người yêu sách, mang đến cho bạn đọc một bộ sưu tập đa dạng các thể loại sách từ văn học, kinh doanh đến sách thiếu nhi. Với cam kết về chất lượng và dịch vụ, PVBook Shop luôn nỗ lực để mang đến trải nghiệm mua sắm sách tuyệt vời nhất.
@@ -16,7 +16,7 @@ const Footer = () => {
           </div>
 
           {/* Policies */}
-          <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="space-y-6 p-6  rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-2xl font-bold text-green-800 border-b border-green-200 pb-3">Chính sách</h3>
             <ul className="space-y-3">
               <li className="hover:text-green-600 transition-colors duration-300 cursor-pointer flex items-center">
@@ -43,7 +43,7 @@ const Footer = () => {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="space-y-6 p-6  rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-2xl font-bold text-green-800 border-b border-green-200 pb-3">Liên hệ</h3>
             <div className="space-y-4">
               <p className="flex items-start space-x-3">
@@ -82,9 +82,9 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-16 pt-8 border-t border-green-200 text-center">
+        {/* <div className="mt-16 pt-8 border-t border-green-200 text-center">
           <p className="text-sm text-gray-600">&copy; {new Date().getFullYear()} PVBook Shop. All rights reserved.</p>
-        </div>
+        </div> */}
       </div>
     </footer>
   );
