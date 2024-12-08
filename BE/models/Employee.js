@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const EmployeeSchema = new mongoose.Schema({
-    employeeCode: { type: String, required: true, unique: true }, // Mã Nhân Viên
-    name: { type: String, required: true }, // Tên
-    role: { type: String, required: true }, // Chức Vụ
-    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }, // Trạng Thái
+const employeeSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  position: { type: String, required: true, default: "Nhân Viên" },
+  status: { type: String, required: true, default: "Active" },
 });
 
-module.exports = mongoose.model('Employee', EmployeeSchema);
+module.exports = mongoose.model("Employee", employeeSchema);

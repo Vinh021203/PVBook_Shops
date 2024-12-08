@@ -1,87 +1,106 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, Alert } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
+import { FaEdit, FaTrash, FaPlusCircle, FaSearch } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Orders() {
-  // Dữ liệu giả cho danh sách đơn hàng với thông tin sản phẩm
   const [orders, setOrders] = useState([
     { id: "123456789012", customer: "John Doe", status: "Pending", date: "01-12-2024", total: 500000, product: "Sách JavaScript" },
     { id: "987654321098", customer: "Jane Smith", status: "Completed", date: "30-11-2024", total: 1200000, product: "Sách React" },
     { id: "345678901234", customer: "Alice Brown", status: "Pending", date: "29-11-2024", total: 300000, product: "Sách Node.js" },
     { id: "234567890123", customer: "Bob Johnson", status: "Completed", date: "28-11-2024", total: 750000, product: "Sách CSS" },
-    // Các đơn hàng khác...
+    // Thêm nhiều đơn hàng khác để kiểm tra phân trang
   ]);
 
+  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ id: "", customer: "", status: "Pending", date: "", total: "", product: "" });
   const [currentOrder, setCurrentOrder] = useState(null);
-  const [formData, setFormData] = useState({ customer: "", status: "", date: "", total: "", product: "" });
-  const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const ordersPerPage = 10; // Số lượng đơn hàng hiển thị trên mỗi trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10; // Số lượng đơn hàng trên mỗi trang
 
-  // Tính toán chỉ số bắt đầu và kết thúc của các đơn hàng trên trang hiện tại
+  // Lọc đơn hàng theo tìm kiếm
+  const filteredOrders = orders.filter(
+    (order) =>
+      order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Xử lý phân trang
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
-  // Tính toán số trang
-  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Hiển thị modal khi chỉnh sửa đơn hàng
-  const handleShowModal = (order) => {
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+  };
+
+  const handleShowModal = (order = null) => {
     setCurrentOrder(order);
-    setFormData({ ...order });
-    setError("");
+    setFormData(order ? { ...order } : { id: "", customer: "", status: "Pending", date: "", total: "", product: "" });
     setShowModal(true);
   };
 
-  // Đóng modal
   const handleCloseModal = () => setShowModal(false);
 
-  // Thay đổi giá trị form
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Lưu đơn hàng mới hoặc cập nhật đơn hàng hiện tại
   const handleSave = () => {
     if (!formData.customer || !formData.status || !formData.date || !formData.total || !formData.product) {
-      setError("Vui lòng điền đầy đủ thông tin!");
+      toast.error("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 
-    // Cập nhật thời gian khi sửa đơn hàng
-    const updatedOrder = { 
-      ...formData, 
-      date: new Date().toLocaleDateString('vi-VN'), // Cập nhật thời gian hiện tại theo định dạng tiếng Việt
-      status: formData.status === "Pending" ? "Chờ Xử Lý" : "Hoàn Thành" // Chuyển trạng thái sang tiếng Việt
-    };
-
     if (currentOrder) {
-      setOrders(orders.map((order) => order.id === currentOrder.id ? { ...order, ...updatedOrder } : order));
+      setOrders(orders.map((order) => (order.id === currentOrder.id ? { ...order, ...formData } : order)));
+      toast.success("Đơn hàng đã được cập nhật thành công!");
+    } else {
+      const newOrder = {
+        ...formData,
+        id: Date.now().toString(),
+        date: new Date().toLocaleDateString("vi-VN"),
+      };
+      setOrders([...orders, newOrder]);
+      toast.success("Đơn hàng đã được thêm thành công!");
     }
 
     setShowModal(false);
   };
 
-  // Xóa đơn hàng
   const handleDelete = (id) => {
     setOrders(orders.filter((order) => order.id !== id));
-  };
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    toast.success("Đơn hàng đã được xóa thành công!");
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-3xl font-bold mb-6">Quản Lý Đơn Hàng</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">Quản Lý Đơn Hàng</h2>
 
-      {/* Bảng danh sách đơn hàng */}
+      {/* Thanh tìm kiếm */}
+      <div className="mb-4 d-flex align-items-center">
+        <input
+          type="text"
+          className="form-control me-2"
+          placeholder="Tìm kiếm theo tên sản phẩm hoặc khách hàng..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+        <FaSearch size={20} />
+      </div>
+
+      {/* Danh sách đơn hàng */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
-          <thead className="thead-dark">
+          <thead>
             <tr>
               <th>Mã Đơn Hàng</th>
               <th>Tên Khách Hàng</th>
-              <th>Tên Sản Phẩm</th>
+              <th>Sản Phẩm</th>
               <th>Trạng Thái</th>
               <th>Ngày</th>
               <th>Tổng</th>
@@ -96,31 +115,25 @@ function Orders() {
                 <td>{order.product}</td>
                 <td>
                   <span
-                    className={`badge ${order.status === "Hoàn Thành" ? "bg-success" : "bg-warning text-dark"}`}
+                    className={`badge ${order.status === "Completed" ? "bg-success" : "bg-warning text-dark"}`}
                   >
-                    {order.status}
+                    {order.status === "Completed" ? "Hoàn Thành" : "Chờ Xử Lý"}
                   </span>
                 </td>
                 <td>{order.date}</td>
                 <td>{order.total.toLocaleString()} VND</td>
                 <td>
                   <button
-                    className="btn btn-primary btn-sm me-2"
-                    onClick={() => handleShowModal(order)}
-                  >
-                    Xem
-                  </button>
-                  <button
                     className="btn btn-warning btn-sm me-2"
                     onClick={() => handleShowModal(order)}
                   >
-                    Sửa
+                    <FaEdit /> Sửa
                   </button>
                   <button
                     className="btn btn-danger btn-sm"
                     onClick={() => handleDelete(order.id)}
                   >
-                    Xóa
+                    <FaTrash /> Xóa
                   </button>
                 </td>
               </tr>
@@ -138,10 +151,7 @@ function Orders() {
                 key={index + 1}
                 className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
               >
-                <button
-                  className="page-link"
-                  onClick={() => handlePageChange(index + 1)}
-                >
+                <button className="page-link" onClick={() => handlePageChange(index + 1)}>
                   {index + 1}
                 </button>
               </li>
@@ -151,22 +161,18 @@ function Orders() {
       </div>
 
       {/* Nút thêm đơn hàng */}
-      <div className="mt-4">
-        <button
-          className="btn btn-success"
-          onClick={() => handleShowModal({ id: "", customer: "", status: "", date: "", total: "", product: "" })}
-        >
-          Thêm Đơn Hàng
+      <div className="mt-4 text-center">
+        <button className="btn btn-success" onClick={() => handleShowModal()}>
+          <FaPlusCircle /> Thêm Đơn Hàng
         </button>
       </div>
 
-      {/* Modal chỉnh sửa đơn hàng */}
+      {/* Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{currentOrder ? "Sửa Đơn Hàng" : "Thêm Đơn Hàng"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {error && <Alert variant="danger">{error}</Alert>}
           <Form>
             <Form.Group controlId="formCustomer">
               <Form.Label>Tên Khách Hàng</Form.Label>
@@ -175,7 +181,6 @@ function Orders() {
                 name="customer"
                 value={formData.customer}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
             <Form.Group controlId="formProduct">
@@ -185,7 +190,6 @@ function Orders() {
                 name="product"
                 value={formData.product}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
             <Form.Group controlId="formStatus">
@@ -195,21 +199,10 @@ function Orders() {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                required
               >
                 <option value="Pending">Chờ Xử Lý</option>
                 <option value="Completed">Hoàn Thành</option>
               </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="formDate">
-              <Form.Label>Ngày</Form.Label>
-              <Form.Control
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
             </Form.Group>
             <Form.Group controlId="formTotal">
               <Form.Label>Tổng Tiền</Form.Label>
@@ -218,7 +211,6 @@ function Orders() {
                 name="total"
                 value={formData.total}
                 onChange={handleChange}
-                required
               />
             </Form.Group>
           </Form>
@@ -232,6 +224,9 @@ function Orders() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

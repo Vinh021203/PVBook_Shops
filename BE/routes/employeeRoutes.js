@@ -1,18 +1,10 @@
-const express = require('express');
-const { 
-    createCategory, 
-    getAllCategories, 
-    updateCategory, 
-    deleteCategory 
-} = require('../controllers/CategoryController');
-const { authenticateJWT } = require('../config/auth');
-
+const express = require("express");
 const router = express.Router();
+const employeeController = require("../controllers/employeeController");
 
-// Định nghĩa các route cho danh mục
-router.post('/', createCategory); // Tạo danh mục mới
-router.get('/', getAllCategories); // Lấy danh sách danh mục
-router.put('/:id', updateCategory); // Cập nhật danh mục
-router.delete('/:id', deleteCategory); // Xóa danh mục
+router.get("/", employeeController.getEmployees); // Định nghĩa GET /api/employees
+router.post("/", employeeController.createEmployee); // Thêm nhân viên mới
+router.put("/:id", employeeController.updateEmployee); // Cập nhật nhân viên
+router.delete("/:id", employeeController.deleteEmployee); // Xóa nhân viên
 
 module.exports = router;

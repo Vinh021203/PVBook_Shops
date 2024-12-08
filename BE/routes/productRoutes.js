@@ -1,14 +1,10 @@
-const express = require('express');
-const { createProduct, getAllProducts, updateProduct, deleteProduct } = require('../controllers/ProductController');
-const { upload } = require('../middlewares/uploadMiddleware');
-const logMiddleware = require('../middlewares/logMiddleware');
-
+const express = require("express");
 const router = express.Router();
+const productController = require("../controllers/productController");
 
-// Sử dụng upload từ đúng nguồn
-router.post('/', upload, createProduct);
-router.get('/', logMiddleware, getAllProducts);
-router.put('/:id', upload, logMiddleware, updateProduct);
-router.delete('/:id', logMiddleware, deleteProduct);
+router.post("/", productController.createProduct);
+router.get("/", productController.getProducts);
+router.put("/:id", productController.updateProduct);
+router.delete("/:id", productController.deleteProduct);
 
 module.exports = router;
