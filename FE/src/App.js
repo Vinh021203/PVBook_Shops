@@ -12,6 +12,8 @@ import AuthForm from "./components/AuthForm";
 import ShoppingCartPage from "./pages/ShoppingCartPage"
 import PaymentPage from "./pages/PaymentPage";
 import BookDetailPage from "./pages/BookDetailPage"
+import ProductPage from "./pages/ProductPage";
+import NewsPage from "./pages/NewsPage"
 
 const App = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -39,12 +41,14 @@ const App = () => {
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
-        <div className="mt-[70px] w-full">
+        <div className="mt-[110px] w-full">
           <Navbar />
         </div>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/products" element={<ProductPage />} />
           <Route path="/memberpolicy" element={<MemberPolicyPage />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/introduction" element={<IntroductionPage />} />
           <Route path="/authform" element={<AuthForm />} />

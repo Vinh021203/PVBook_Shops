@@ -22,7 +22,7 @@ const Navbar = () => {
         ]}
       ]
     },
-    { id: 3, name: "Sản phẩm khuyến mãi", link: "/promotions" },
+    // { id: 3, name: "Sản phẩm khuyến mãi", link: "/promotions" },
     { id: 4, name: "Tin tức", link: "/news" },
     { id: 5, name: "Giới thiệu", link: "/introduction" },
     { id: 6, name: "Liên hệ", link: "/contact" },

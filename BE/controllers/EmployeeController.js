@@ -2,13 +2,13 @@ const Employee = require("../models/Employee");
 
 // Lấy danh sách nhân viên
 exports.getEmployees = async (req, res) => {
-    try {
-      const employees = await Employee.find();
-      res.status(200).json(employees);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy danh sách nhân viên", error: error.message });
-    }
-  };
+  try {
+    const employees = await Employee.find();
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi lấy danh sách nhân viên", error: error.message });
+  }
+};
 
 // Thêm nhân viên mới
 exports.createEmployee = async (req, res) => {

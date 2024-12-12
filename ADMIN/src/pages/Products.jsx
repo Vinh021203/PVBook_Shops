@@ -3,24 +3,32 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { FaEdit, FaTrash, FaPlusCircle, FaSearch } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios"; // Import Axios
+import axios from "axios";
 
 function Products() {
-  const [products, setProducts] = useState([]); // Dữ liệu sản phẩm
-  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ productCode: "", name: "", price: "", description: "", category: "", image: null });
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const productsPerPage = 5; // Số sản phẩm trên mỗi trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); // Tổng số trang từ backend
+  const productsPerPage = 50;
 
-  const apiUrl = "http://localhost:5000/api/products"; // Địa chỉ API
+  const apiUrl = "http://localhost:5000/api/products";
 
-  // Lấy danh sách sản phẩm từ API
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(apiUrl, { params: { searchTerm } });
+      const response = await axios.get(apiUrl, {
+        params: {
+          searchTerm,
+          page: currentPage,
+          limit: productsPerPage,
+        },
+      });
+
       setProducts(response.data.products);
+      setTotalPages(response.data.totalPages); // Cập nhật tổng số trang từ backend
     } catch (error) {
       console.error("Lỗi khi lấy sản phẩm:", error);
       toast.error("Không thể tải sản phẩm từ server.");
@@ -29,15 +37,11 @@ function Products() {
 
   useEffect(() => {
     fetchProducts();
-  }, [searchTerm]);
+  }, [searchTerm, currentPage]); // Gọi lại khi searchTerm hoặc currentPage thay đổi
 
-  // Lọc sản phẩm và phân trang
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(products.length / productsPerPage);
-
-  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const handleShowModal = (product = null) => {
     setCurrentProduct(product);
@@ -60,9 +64,8 @@ function Products() {
       toast.error("Vui lòng điền đầy đủ thông tin!");
       return;
     }
-  
+
     try {
-      // Xử lý file hình ảnh (chỉ nếu hình ảnh được chọn)
       let imageUrl = formData.image;
       if (formData.image && typeof formData.image !== "string") {
         const reader = new FileReader();
@@ -70,16 +73,16 @@ function Products() {
         await new Promise((resolve) => (reader.onloadend = resolve));
         imageUrl = reader.result;
       }
-  
+
       const payload = {
         productCode: formData.productCode,
         name: formData.name,
         price: parseInt(formData.price, 10),
         description: formData.description,
         category: formData.category,
-        image: imageUrl || "", // URL của hình ảnh
+        image: imageUrl || "",
       };
-  
+
       if (currentProduct) {
         await axios.put(`${apiUrl}/${currentProduct._id}`, payload);
         toast.success("Sản phẩm đã được cập nhật thành công!");
@@ -87,21 +90,20 @@ function Products() {
         await axios.post(apiUrl, payload);
         toast.success("Sản phẩm đã được thêm thành công!");
       }
-  
-      fetchProducts(); // Cập nhật danh sách sản phẩm
+
+      fetchProducts();
       setShowModal(false);
     } catch (error) {
       console.error("Lỗi khi lưu sản phẩm:", error);
       toast.error("Không thể lưu sản phẩm.");
     }
   };
-  
-  
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${apiUrl}/${id}`);
       toast.success("Sản phẩm đã được xóa thành công!");
-      fetchProducts(); // Cập nhật danh sách sản phẩm
+      fetchProducts();
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
       toast.error("Không thể xóa sản phẩm.");
@@ -111,8 +113,6 @@ function Products() {
   return (
     <div className="p-4">
       <h2 className="text-3xl font-bold mb-6 text-center">Quản Lý Sản Phẩm</h2>
-
-      {/* Thanh tìm kiếm */}
       <div className="mb-4 d-flex align-items-center">
         <input
           type="text"
@@ -121,13 +121,12 @@ function Products() {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+            setCurrentPage(1);
           }}
         />
         <FaSearch size={20} />
       </div>
 
-      {/* Bảng danh sách sản phẩm */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
           <thead>
@@ -143,7 +142,7 @@ function Products() {
             </tr>
           </thead>
           <tbody>
-            {currentProducts.map((product) => (
+            {products.map((product) => (
               <tr key={product._id}>
                 <td>{product.productCode}</td>
                 <td>{product.name}</td>
@@ -178,7 +177,6 @@ function Products() {
         </table>
       </div>
 
-      {/* Phân trang */}
       <div className="d-flex justify-content-center mt-4">
         <nav>
           <ul className="pagination">
@@ -196,14 +194,12 @@ function Products() {
         </nav>
       </div>
 
-      {/* Nút thêm sản phẩm */}
       <div className="mt-4 text-center">
         <button className="btn btn-success" onClick={() => handleShowModal()}>
           <FaPlusCircle /> Thêm Sản Phẩm
         </button>
       </div>
 
-      {/* Modal thêm/sửa sản phẩm */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{currentProduct ? "Sửa Sản Phẩm" : "Thêm Sản Phẩm"}</Modal.Title>
@@ -276,7 +272,6 @@ function Products() {
         </Modal.Footer>
       </Modal>
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

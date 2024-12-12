@@ -15,6 +15,8 @@ exports.createProduct = async (req, res) => {
 // Lấy danh sách sản phẩm
 exports.getProducts = async (req, res) => {
   const { searchTerm, page = 1, limit = 5 } = req.query;
+
+  // Xây dựng query để tìm kiếm
   const query = searchTerm
     ? {
         $or: [
@@ -24,16 +26,32 @@ exports.getProducts = async (req, res) => {
         ],
       }
     : {};
+
   try {
+    // Lấy danh sách sản phẩm với phân trang
     const products = await Product.find(query)
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .skip((page - 1) * limit) // Bỏ qua sản phẩm theo trang
+      .limit(Number(limit)); // Giới hạn số sản phẩm mỗi trang
+
+    // Tổng số sản phẩm phù hợp
     const total = await Product.countDocuments(query);
-    res.status(200).json({ products, total });
+
+    // Tính tổng số trang
+    const totalPages = Math.ceil(total / limit);
+
+    // Trả về kết quả
+    res.status(200).json({
+      products,
+      total,
+      totalPages,
+      currentPage: Number(page),
+      hasNextPage: Number(page) < totalPages,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Cập nhật sản phẩm
 exports.updateProduct = async (req, res) => {
