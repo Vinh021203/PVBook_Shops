@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FiHome, FiShoppingBag, FiLayers, FiBox, FiUsers, FiFileText, FiSettings, FiShoppingCart } from "react-icons/fi";
+import { FiHome, FiShoppingBag, FiLayers, FiBox, FiUsers, FiFileText, FiShoppingCart } from "react-icons/fi";
 
 function Sidebar() {
   return (
@@ -46,7 +46,7 @@ function Sidebar() {
       </style>
 
       <div className="sidebar bg-dark p-3 h-100">
-        <h3>Menu Quản Trị - Vinh đẹp trai</h3>
+        <h3>PVBOOK-SHOPS</h3>
         <ul>
           <li className="mb-3">
             <Link to="/" className="sidebar-link">
@@ -88,11 +88,11 @@ function Sidebar() {
               <FiFileText className="icon" /> Báo cáo
             </Link>
           </li>
-          <li className="mb-3">
+          {/* <li className="mb-3">
             <Link to="/settings" className="sidebar-link">
               <FiSettings className="icon" /> Cài đặt
             </Link>
-          </li>
+          </li> */}
         </ul>
       </div>
     </>

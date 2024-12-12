@@ -1,11 +1,10 @@
 import React from "react";
-import { FaSignOutAlt, FaPhoneAlt, FaUserCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaPhoneAlt, FaBell } from "react-icons/fa";
 
 function Navbar() {
   const handleLogout = () => {
     alert("Bạn đã đăng xuất thành công!");
-    // Điều hướng về trang đăng nhập nếu cần
-    // window.location.href = "/login";
+    window.location.href = "/login";
   };
 
   return (
@@ -19,12 +18,25 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Lời chào admin và nút logout */}
+      {/* Lời chào admin, thông báo và nút logout */}
       <div className="d-flex align-items-center">
+        {/* Chuông thông báo */}
+        <div className="position-relative cursor-pointer me-3">
+          <FaBell className="fs-4 text-light" />
+          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            3
+          </span>
+        </div>
+
         {/* Avatar và chào admin */}
         <div className="d-flex align-items-center me-3">
-          <FaUserCircle className="text-light" style={{ fontSize: "2rem" }} />
-          <span className="fw-bold ms-2">Chào, Admin</span>
+          <img
+            src="https://via.placeholder.com/40"
+            alt="Avatar"
+            className="rounded-circle border border-white shadow-sm me-2"
+            style={{ width: "40px", height: "40px" }}
+          />
+          <span className="fw-bold">Chào, Admin</span>
         </div>
 
         {/* Nút Logout */}

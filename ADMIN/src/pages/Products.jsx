@@ -3,51 +3,54 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { FaEdit, FaTrash, FaPlusCircle, FaSearch } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import axios from "../api/axios";
 
 function Products() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ productCode: "", name: "", price: "", description: "", category: "", image: null });
+  const [formData, setFormData] = useState({
+    productCode: "",
+    name: "",
+    price: "",
+    description: "",
+    category: "",
+    image: null,
+  });
   const [currentProduct, setCurrentProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1); // Tổng số trang từ backend
-  const productsPerPage = 50;
+  const productsPerPage = 5;
 
-  const apiUrl = "http://localhost:5000/api/products";
+  // Lấy danh sách sản phẩm và danh mục từ backend khi component được mount
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, []);
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(apiUrl, {
-        params: {
-          searchTerm,
-          page: currentPage,
-          limit: productsPerPage,
-        },
-      });
-
-      setProducts(response.data.products);
-      setTotalPages(response.data.totalPages); // Cập nhật tổng số trang từ backend
+      const response = await axios.get("/products");
+      setProducts(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy sản phẩm:", error);
-      toast.error("Không thể tải sản phẩm từ server.");
+      toast.error("Lỗi khi tải sản phẩm từ server!");
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, [searchTerm, currentPage]); // Gọi lại khi searchTerm hoặc currentPage thay đổi
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/categories");
+      setCategories(response.data);
+    } catch (error) {
+      toast.error("Lỗi khi tải danh mục từ server!");
+    }
   };
 
   const handleShowModal = (product = null) => {
     setCurrentProduct(product);
     setFormData(
       product
-        ? { ...product }
+        ? { ...product, category: product.category?._id || "" }
         : { productCode: "", name: "", price: "", description: "", category: "", image: null }
     );
     setShowModal(true);
@@ -66,67 +69,76 @@ function Products() {
     }
 
     try {
-      let imageUrl = formData.image;
-      if (formData.image && typeof formData.image !== "string") {
-        const reader = new FileReader();
-        reader.readAsDataURL(formData.image);
-        await new Promise((resolve) => (reader.onloadend = resolve));
-        imageUrl = reader.result;
+      const formDataCopy = { ...formData };
+
+      if (formData.image) {
+        const formDataForUpload = new FormData();
+        formDataForUpload.append("image", formData.image);
+
+        const uploadResponse = await axios.post("/upload", formDataForUpload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        formDataCopy.image = uploadResponse.data.imageUrl;
       }
 
-      const payload = {
-        productCode: formData.productCode,
-        name: formData.name,
-        price: parseInt(formData.price, 10),
-        description: formData.description,
-        category: formData.category,
-        image: imageUrl || "",
-      };
-
       if (currentProduct) {
-        await axios.put(`${apiUrl}/${currentProduct._id}`, payload);
+        await axios.put(`/products/${currentProduct._id}`, formDataCopy);
         toast.success("Sản phẩm đã được cập nhật thành công!");
       } else {
-        await axios.post(apiUrl, payload);
-        toast.success("Sản phẩm đã được thêm thành công!");
+        await axios.post("/products", formDataCopy);
+        toast.success("Sản phẩm mới đã được thêm thành công!");
       }
 
       fetchProducts();
       setShowModal(false);
     } catch (error) {
-      console.error("Lỗi khi lưu sản phẩm:", error);
-      toast.error("Không thể lưu sản phẩm.");
+      toast.error("Có lỗi xảy ra khi lưu sản phẩm!");
+      console.error(error);
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiUrl}/${id}`);
+      await axios.delete(`/products/${id}`);
       toast.success("Sản phẩm đã được xóa thành công!");
       fetchProducts();
     } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm:", error);
-      toast.error("Không thể xóa sản phẩm.");
+      toast.error("Có lỗi xảy ra khi xóa sản phẩm!");
     }
   };
+
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.productCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="p-4">
       <h2 className="text-3xl font-bold mb-6 text-center">Quản Lý Sản Phẩm</h2>
+
+      {/* Thanh tìm kiếm */}
       <div className="mb-4 d-flex align-items-center">
         <input
           type="text"
           className="form-control me-2"
           placeholder="Tìm kiếm theo tên, mã sản phẩm hoặc danh mục..."
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <FaSearch size={20} />
       </div>
 
+      {/* Bảng danh sách sản phẩm */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
           <thead>
@@ -142,7 +154,7 @@ function Products() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {currentProducts.map((product) => (
               <tr key={product._id}>
                 <td>{product.productCode}</td>
                 <td>{product.name}</td>
@@ -158,9 +170,9 @@ function Products() {
                   )}
                 </td>
                 <td>{product.price.toLocaleString()} VNĐ</td>
-                <td>{product.category}</td>
+                <td>{product.category?.name || "Chưa có danh mục"}</td>
                 <td>{product.description}</td>
-                <td>{product.createdAt}</td>
+                <td>{new Date(product.createdAt).toLocaleDateString()}</td>
                 <td>
                   <div className="d-flex align-items-center justify-content-center">
                     <button className="btn btn-warning btn-sm me-2" onClick={() => handleShowModal(product)}>
@@ -177,6 +189,7 @@ function Products() {
         </table>
       </div>
 
+      {/* Phân trang */}
       <div className="d-flex justify-content-center mt-4">
         <nav>
           <ul className="pagination">
@@ -194,12 +207,14 @@ function Products() {
         </nav>
       </div>
 
+      {/* Nút thêm sản phẩm */}
       <div className="mt-4 text-center">
         <button className="btn btn-success" onClick={() => handleShowModal()}>
           <FaPlusCircle /> Thêm Sản Phẩm
         </button>
       </div>
 
+      {/* Modal Thêm/Sửa */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{currentProduct ? "Sửa Sản Phẩm" : "Thêm Sản Phẩm"}</Modal.Title>
@@ -249,12 +264,19 @@ function Products() {
             <Form.Group controlId="formCategory">
               <Form.Label>Danh Mục</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="">-- Chọn danh mục --</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
             <Form.Group controlId="formImage">
               <Form.Label>Chọn Hình Ảnh</Form.Label>

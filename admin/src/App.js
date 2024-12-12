@@ -10,7 +10,6 @@ import Employees from "./pages/Employees";
 import Cart from "./pages/Cart";
 import Customers from "./pages/Customers";
 import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 
 // Kiểm tra trạng thái đăng nhập
@@ -33,12 +32,12 @@ function App() {
             <ProtectedRoute>
               <div className="d-flex">
                 {/* Sidebar */}
-                <div className="col-3 bg-dark text-white p-4">
+                <div className="col-3 bg-dark text-white p-4" style={{ position: "fixed", height: "100vh" }}>
                   <Sidebar />
                 </div>
 
                 {/* Nội dung chính */}
-                <div className="col-9">
+                <div className="col-9" style={{ marginLeft: "25%", overflowY: "auto", height: "100vh" }}>
                   <Navbar />
                   <div className="p-4">
                     <Routes>
@@ -50,7 +49,6 @@ function App() {
                       <Route path="/employees" element={<Employees />} />
                       <Route path="/customers" element={<Customers />} />
                       <Route path="/reports" element={<Reports />} />
-                      <Route path="/settings" element={<Settings />} />
                     </Routes>
                   </div>
                 </div>

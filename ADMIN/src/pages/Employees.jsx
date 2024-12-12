@@ -3,27 +3,25 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { FaEdit, FaTrash, FaPlusCircle, FaSearch } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import axios from "../api/axios"; // Import API instance
 
 function Employees() {
-  const [employees, setEmployees] = useState([]); // Danh sách nhân viên
-  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const employeesPerPage = 5; // Số nhân viên trên mỗi trang
+  const [employees, setEmployees] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const employeesPerPage = 5;
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ id: "", name: "", position: "Nhân Viên", status: "Active" });
   const [currentEmployee, setCurrentEmployee] = useState(null);
 
-  const apiUrl = "http://localhost:5000/api/employees"; // URL của API backend
-
-  // Lấy danh sách nhân viên từ API
+  // Lấy danh sách nhân viên từ backend
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get("/employees");
       setEmployees(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách nhân viên:", error);
-      toast.error("Không thể tải danh sách nhân viên từ server.");
+      toast.error("Lỗi khi tải danh sách nhân viên!");
+      console.error(error);
     }
   };
 
@@ -31,42 +29,44 @@ function Employees() {
     fetchEmployees();
   }, []);
 
-  // Lọc nhân viên theo từ khóa tìm kiếm
+  // Tìm kiếm
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  // Phân trang
+  const indexOfLastEmployee = currentPage * employeesPerPage;
+  const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
   const filteredEmployees = employees.filter(
     (emp) =>
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Phân trang
-  const indexOfLastEmployee = currentPage * employeesPerPage;
-  const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
   const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
   const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
-
   const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Quay về trang đầu khi tìm kiếm
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setFormData({ id: "", name: "", position: "Nhân Viên", status: "Active" });
-  };
-
+  // Hiển thị modal
   const handleShowModal = (employee = null) => {
     setCurrentEmployee(employee);
     setFormData(employee ? { ...employee } : { id: "", name: "", position: "Nhân Viên", status: "Active" });
     setShowModal(true);
   };
 
+  // Đóng modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setFormData({ id: "", name: "", position: "Nhân Viên", status: "Active" });
+  };
+
+  // Thay đổi form
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Lưu nhân viên (thêm mới hoặc cập nhật)
   const handleSave = async () => {
     if (!formData.name) {
       toast.error("Vui lòng nhập tên nhân viên!");
@@ -76,29 +76,30 @@ function Employees() {
     try {
       if (currentEmployee) {
         // Cập nhật nhân viên
-        await axios.put(`${apiUrl}/${currentEmployee.id}`, formData);
+        await axios.put(`/employees/${currentEmployee.id}`, formData);
         toast.success("Thông tin nhân viên đã được cập nhật!");
       } else {
         // Thêm nhân viên mới
-        await axios.post(apiUrl, formData);
+        await axios.post("/employees", formData);
         toast.success("Nhân viên mới đã được thêm thành công!");
       }
-      fetchEmployees(); // Cập nhật danh sách nhân viên
+      fetchEmployees(); // Refresh danh sách nhân viên
       handleCloseModal();
     } catch (error) {
-      console.error("Lỗi khi lưu nhân viên:", error);
-      toast.error("Không thể lưu nhân viên.");
+      toast.error("Có lỗi xảy ra khi lưu nhân viên!");
+      console.error(error);
     }
   };
 
+  // Xóa nhân viên
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiUrl}/${id}`);
+      await axios.delete(`/employees/${id}`);
       toast.success("Nhân viên đã được xóa thành công!");
-      fetchEmployees(); // Cập nhật danh sách nhân viên
+      fetchEmployees(); // Refresh danh sách nhân viên
     } catch (error) {
-      console.error("Lỗi khi xóa nhân viên:", error);
-      toast.error("Không thể xóa nhân viên.");
+      toast.error("Có lỗi xảy ra khi xóa nhân viên!");
+      console.error(error);
     }
   };
 
@@ -106,7 +107,6 @@ function Employees() {
     <div className="p-4">
       <h2 className="text-3xl font-bold mb-6 text-center">Quản Lý Nhân Viên</h2>
 
-      {/* Thanh tìm kiếm */}
       <div className="mb-4 d-flex align-items-center">
         <input
           type="text"
@@ -118,7 +118,6 @@ function Employees() {
         <FaSearch size={20} />
       </div>
 
-      {/* Danh sách nhân viên */}
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
           <thead>
@@ -165,7 +164,6 @@ function Employees() {
         </table>
       </div>
 
-      {/* Phân trang */}
       <div className="d-flex justify-content-center mt-4">
         <nav>
           <ul className="pagination">
@@ -183,14 +181,12 @@ function Employees() {
         </nav>
       </div>
 
-      {/* Nút thêm nhân viên */}
       <div className="mt-4 text-center">
         <button className="btn btn-success" onClick={() => handleShowModal()}>
           <FaPlusCircle /> Thêm Nhân Viên
         </button>
       </div>
 
-      {/* Modal thêm/sửa nhân viên */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>{currentEmployee ? "Cập Nhật Nhân Viên" : "Thêm Nhân Viên"}</Modal.Title>
@@ -244,7 +240,6 @@ function Employees() {
         </Modal.Footer>
       </Modal>
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
