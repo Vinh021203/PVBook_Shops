@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phone: { type: String },
     address: { type: String },
+    status: { type: String, default: "Active" }, // Thêm trạng thái khách hàng
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
