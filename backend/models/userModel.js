@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema(
     address: { type: String },
     status: { type: String, default: "Active" }, // Thêm trạng thái khách hàng
     createdAt: { type: Date, default: Date.now },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );

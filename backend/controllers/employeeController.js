@@ -31,6 +31,28 @@ const createEmployee = async (req, res) => {
   }
 };
 
+// Cập nhật doanh số nhân viên
+const updateSales = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sales } = req.body;
+
+    const updatedEmployee = await Employee.findOneAndUpdate(
+      { id },
+      { $inc: { sales } }, // Cộng thêm doanh số vào tổng hiện tại
+      { new: true }
+    );
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Nhân viên không tồn tại!" });
+    }
+
+    res.status(200).json(updatedEmployee);
+  } catch (error) {
+    res.status(400).json({ message: "Lỗi khi cập nhật doanh số!", error: error.message });
+  }
+};
+
 // Cập nhật nhân viên
 const updateEmployee = async (req, res) => {
   try {
@@ -75,4 +97,5 @@ module.exports = {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  updateSales,
 };

@@ -1,22 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import { FaLaptopCode, FaBrain, FaChild, FaHistory, FaPalette, FaBook, FaUserGraduate, FaChartLine } from "react-icons/fa";
+import {
+  FaLaptopCode,
+  FaBrain,
+  FaChild,
+  FaHistory,
+  FaPalette,
+  FaBook,
+  FaUserGraduate,
+  FaChartLine,
+} from "react-icons/fa";
+import axios from "../api/axios"; // Import axios
+import { useNavigate } from "react-router-dom"; // Điều hướng trang
 
-const BookCategoryGallery = () => {
+const Categories = () => {
+  const [categories, setCategories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const itemsToShow = 6;
+  const navigate = useNavigate(); // Hook để điều hướng trang
 
-  const categories = [
-    { name: "Sách Lập Trình", icon: <FaLaptopCode className="text-blue-500 w-12 h-12" /> },
-    { name: "Sách Kỹ Năng", icon: <FaUserGraduate className="text-green-500 w-12 h-12" /> },
-    { name: "Sách Khoa Học", icon: <FaBrain className="text-purple-500 w-12 h-12" /> },
-    { name: "Sách Văn Học", icon: <FaBook className="text-red-500 w-12 h-12" /> },
-    { name: "Sách Thiếu Nhi", icon: <FaChild className="text-yellow-500 w-12 h-12" /> },
-    { name: "Sách Kinh Tế", icon: <FaChartLine className="text-orange-500 w-12 h-12" /> },
-    { name: "Sách Nghệ Thuật", icon: <FaPalette className="text-pink-500 w-12 h-12" /> },
-    { name: "Sách Lịch Sử", icon: <FaHistory className="text-indigo-500 w-12 h-12" /> },
-  ];
+  // Tạo danh sách biểu tượng dựa trên loại danh mục
+  const iconMapping = {
+    "Sách Lập Trình": <FaLaptopCode className="text-blue-500 w-12 h-12" />,
+    "Sách Kỹ Năng": <FaUserGraduate className="text-green-500 w-12 h-12" />,
+    "Sách Khoa Học": <FaBrain className="text-purple-500 w-12 h-12" />,
+    "Sách Văn Học": <FaBook className="text-red-500 w-12 h-12" />,
+    "Sách Thiếu Nhi": <FaChild className="text-yellow-500 w-12 h-12" />,
+    "Sách Kinh Tế": <FaChartLine className="text-orange-500 w-12 h-12" />,
+    "Sách Nghệ Thuật": <FaPalette className="text-pink-500 w-12 h-12" />,
+    "Sách Lịch Sử": <FaHistory className="text-indigo-500 w-12 h-12" />,
+  };
 
-  const itemsToShow = 6; // Number of items to display at a time
+  // Gọi API để lấy danh mục
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error.message);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const displayedCategories = categories.slice(currentIndex, currentIndex + itemsToShow);
 
@@ -26,6 +53,12 @@ const BookCategoryGallery = () => {
 
   const prevCategory = () => {
     setCurrentIndex((prev) => (prev - itemsToShow + categories.length) % categories.length);
+  };
+
+  // Chuyển hướng khi click vào danh mục
+  const handleCategoryClick = (name) => {
+    const categoryPath = name.replace(/\s+/g, "-").toLowerCase(); // Tạo URL thân thiện
+    navigate(`/products/${categoryPath}`);
   };
 
   return (
@@ -51,12 +84,15 @@ const BookCategoryGallery = () => {
 
       {/* Category Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {displayedCategories.map((category, index) => (
+        {displayedCategories.map((category) => (
           <div
-            key={index}
-            className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            key={category.id}
+            onClick={() => handleCategoryClick(category.name)}
+            className="cursor-pointer bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
           >
-            <div className="mb-4">{category.icon}</div>
+            <div className="mb-4">
+              {iconMapping[category.name] || <FaBook className="text-gray-500 w-12 h-12" />}
+            </div>
             <h3 className="text-lg font-semibold text-gray-800 text-center">{category.name}</h3>
           </div>
         ))}
@@ -65,4 +101,4 @@ const BookCategoryGallery = () => {
   );
 };
 
-export default BookCategoryGallery;
+export default Categories;

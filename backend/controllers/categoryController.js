@@ -68,20 +68,21 @@ const deleteCategory = async (req, res) => {
     // Kiểm tra nếu danh mục có sản phẩm thì không cho phép xóa
     const productExists = await Product.exists({ category: id });
     if (productExists) {
-      return res
-        .status(400)
-        .json({ message: "Không thể xóa danh mục vì còn sản phẩm liên kết!" });
+      return res.status(400).json({
+        message: `Không thể xóa danh mục với ID "${id}" vì còn sản phẩm liên kết!`,
+      });
     }
 
     const deletedCategory = await Category.findOneAndDelete({ id });
 
     if (!deletedCategory) {
-      return res.status(404).json({ message: "Danh mục không tồn tại!" });
+      return res.status(404).json({ message: `Danh mục với ID "${id}" không tồn tại!` });
     }
 
-    res.status(200).json({ message: "Danh mục đã được xóa thành công!" });
+    res.status(200).json({ message: `Danh mục với ID "${id}" đã được xóa thành công!` });
   } catch (error) {
-    res.status(400).json({ message: "Lỗi khi xóa danh mục!", error: error.message });
+    console.error("Error deleting category:", error);
+    res.status(500).json({ message: "Lỗi khi xóa danh mục!", error: error.message });
   }
 };
 

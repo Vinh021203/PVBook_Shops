@@ -1,179 +1,275 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import { FaStar, FaShoppingCart } from "react-icons/fa";
-import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { FaShoppingCart, FaChevronLeft, FaChevronRight, FaArrowLeft } from "react-icons/fa";
+import axios from "../api/axios";
 
 const BookDetailPage = () => {
   const { id } = useParams();
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const books = [
-    {
-      id: 1,
-      title: "The Art of Programming",
-      author: "Robert C. Martin",
-      description: "A comprehensive guide to programming.",
-      isbn: "978-3-16-148410-0",
-      publishDate: "2023-01-01",
-      price: 299000,
-      genre: "Programming",
-      coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c",
-      reviews: [
-        {
-          id: 1,
-          name: "Alice Johnson",
-          rating: 5,
-          text: "An excellent resource for programmers.",
-          date: "2023-12-01",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Data Structures Explained",
-      author: "John Smith",
-      description: "Understanding data structures in depth.",
-      isbn: "978-3-16-148410-1",
-      publishDate: "2023-02-01",
-      price: 250000,
-      genre: "Data Structures",
-      coverImage: "https://images.unsplash.com/photo-1589998059171-988d887df646",
-      reviews: [],
-    },
-  ];
+  const handleBuyNow = () => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      navigate("/authform", { state: { from: `/payment` } });
+    } else {
+      const selectedProduct = {
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+      };
+      localStorage.setItem("selectedProduct", JSON.stringify(selectedProduct));
+      navigate(`/payment`);
+    }
+  };
 
-  const book = books.find((b) => b.id === parseInt(id));
+  const handleAddToCart = async () => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const userId = localStorage.getItem("userId");
+  
+    if (!isLoggedIn || !userId) {
+      setNotification({
+        message: "Bạn chưa đăng nhập. Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.",
+        type: "error",
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+  
+    const productId = product?._id;
+  
+    if (!productId) {
+      setNotification({
+        message: "Thông tin sản phẩm không hợp lệ. Vui lòng kiểm tra lại.",
+        type: "error",
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+  
+    // Kiểm tra số lượng tồn kho
+    if (product.stock <= 0) {
+      setNotification({
+        message: "Sản phẩm đã hết hàng. Vui lòng chọn sản phẩm khác.",
+        type: "error",
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+  
+    try {
+      const cartItem = {
+        userId,
+        productId,
+        quantity: 1, // Mặc định thêm 1 sản phẩm
+      };
+  
+      const response = await axios.post(`/cart`, cartItem);
+      setNotification({
+        message: response.data.message || "Sản phẩm đã được thêm vào giỏ hàng!",
+        type: "success",
+      });
+    } catch (error) {
+      setNotification({
+        message: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau.",
+        type: "error",
+      });
+    } finally {
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+  
 
-  if (!book) return <div>Book not found</div>;
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`/products/${id}`);
+        setProduct(response.data);
+        fetchRelatedProducts(response.data.category?._id);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        console.error(err.response?.data?.message || "Error fetching product");
+      }
+    };
 
-  const RatingStars = ({ rating }) => (
-    <div className="flex">
-      {[...Array(5)].map((_, index) => {
-        if (index < Math.floor(rating)) {
-          return <BsStarFill key={index} className="text-yellow-400" />;
-        } else if (index === Math.floor(rating) && rating % 1 !== 0) {
-          return <BsStarHalf key={index} className="text-yellow-400" />;
-        } else {
-          return <BsStar key={index} className="text-yellow-400" />;
+    const fetchRelatedProducts = async (categoryId) => {
+      try {
+        if (categoryId) {
+          const response = await axios.get(`/products?category=${categoryId}&limit=10`);
+          setRelatedProducts(response.data);
         }
-      })}
-    </div>
-  );
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm liên quan:", error);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  const imageUrl = (path) =>
+    path.startsWith("http") ? path : `http://localhost:5000${path}`;
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % relatedProducts.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + relatedProducts.length) % relatedProducts.length
+    );
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-8">
-      {/* Book Details Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div className="relative h-[500px] rounded-lg overflow-hidden">
+    <div className="max-w-7xl mx-auto p-8 lg:p-14 bg-gray-50 rounded-xl shadow-xl relative">
+      {/* Thông báo */}
+      {notification && (
+        <div
+          className={`fixed top-16 right-4 z-50 p-4 rounded-md shadow-lg text-white ${
+            notification.type === "success" ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
+
+      {/* Nút Trở lại */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 flex items-center text-blue-500 hover:underline space-x-2"
+      >
+        <FaArrowLeft />
+        <span>Trở lại</span>
+      </button>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="rounded-xl overflow-hidden shadow-md">
           <img
-            src={book.coverImage}
-            alt={book.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.src = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e";
-            }}
+            src={imageUrl(product?.image || "https://via.placeholder.com/150")}
+            alt={product?.name}
+            className="w-full h-[600px] object-cover object-top rounded-lg shadow-md transition-transform duration-300 transform hover:scale-105"
           />
         </div>
 
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold text-gray-900">{book.title}</h1>
-          <p className="text-xl text-gray-600">Tác giả: {book.author}</p>
+        <div className="space-y-8">
+          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight hover:underline transition-all">
+            {product?.name}
+          </h1>
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Mã ISBN:</span>
-              <span className="font-semibold">{book.isbn}</span>
+          <div className="grid grid-cols-2 gap-y-4">
+            <div>
+              <p className="text-lg text-gray-600 font-semibold">Tác giả:</p>
+              <p className="text-lg text-gray-900 font-medium">{product?.author}</p>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Ngày xuất bản:</span>
-              <span className="font-semibold">{book.publishDate}</span>
+            <div>
+              <p className="text-lg text-gray-600 font-semibold">Mã sản phẩm:</p>
+              <p className="text-lg text-blue-800 font-bold">{product?.productCode}</p>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Thể loại:</span>
-              <span className="font-semibold">{book.genre}</span>
+            <div>
+              <p className="text-lg text-gray-600 font-semibold">Ngày tạo:</p>
+              <p className="text-lg text-blue-800 font-bold">
+                {new Date(product?.createdAt).toLocaleDateString()}
+              </p>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Giá:</span>
-              <span className="text-2xl font-bold text-green-600">
-                {book.price.toLocaleString()}đ
-              </span>
+            <div>
+              <p className="text-lg text-gray-600 font-semibold">Thể loại:</p>
+              <p className="text-lg text-blue-800 font-bold">
+                {product?.category?.name || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-lg text-gray-600 font-semibold">Số lượng tồn kho:</p>
+              <p className="text-lg text-red-600 font-bold">{product?.stock || 0}</p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-lg text-gray-600 font-semibold">Giá:</p>
+              <p className="text-3xl font-extrabold text-green-600">
+                {product?.price.toLocaleString()}đ
+              </p>
             </div>
           </div>
 
-          <p className="text-gray-700 mt-4">{book.description}</p>
+          <p className="text-gray-700 text-base leading-relaxed hover:text-gray-900 transition-colors">
+            {product?.description}
+          </p>
 
-          <div className="flex space-x-4">
-            <button className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center">
-              <FaShoppingCart className="mr-2" />
-              Thêm vào giỏ hàng
+          <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 bg-blue-600 text-white py-4 rounded-lg shadow-md hover:bg-blue-800 transition-all font-semibold flex items-center justify-center space-x-2"
+            >
+              <FaShoppingCart />
+              <span>Thêm vào giỏ hàng</span>
             </button>
-            <button className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition duration-200">
+            <button
+              onClick={handleBuyNow}
+              className="flex-1 bg-green-600 text-white py-4 rounded-lg shadow-md hover:bg-green-800 transition-all font-semibold"
+            >
               Mua ngay
             </button>
           </div>
         </div>
       </div>
 
-      {/* Customer Reviews Section */}
+      {/* Sản phẩm liên quan */}
       <div className="mt-16">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">Đánh giá của khách hàng</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Sản phẩm liên quan</h2>
+        <div className="relative">
           <button
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
+            onClick={handlePrev}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white p-3 rounded-full shadow-md hover:bg-blue-600"
           >
-            Viết đánh giá
+            <FaChevronLeft size={24} />
           </button>
-        </div>
-
-        {showReviewForm && (
-          <div className="bg-gray-50 p-6 rounded-lg mb-8">
-            <form className="space-y-4">
-              <div>
-                <label className="block text-gray-700 mb-2">Đánh giá của bạn</label>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <FaStar
-                      key={star}
-                      className="text-2xl cursor-pointer text-yellow-400"
-                    />
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-700 mb-2">Nhận xét của bạn</label>
-                <textarea
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows="4"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 overflow-hidden">
+            {relatedProducts.slice(currentIndex, currentIndex + 4).map((item) => (
+              <div
+                key={item._id}
+                className="bg-white shadow-md rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-transform duration-300 flex flex-col"
               >
-                Gửi đánh giá
-              </button>
-            </form>
-          </div>
-        )}
-
-        <div className="space-y-6">
-          {book.reviews.length > 0 ? (
-            book.reviews.map((review) => (
-              <div key={review.id} className="border-b pb-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-lg">{review.name}</p>
-                    <RatingStars rating={review.rating} />
-                  </div>
-                  <span className="text-gray-500 text-sm">{review.date}</span>
+                {/* Hình ảnh sách */}
+                <img
+                  src={imageUrl(item.image || "https://via.placeholder.com/150")}
+                  alt={item.name}
+                  className="w-full h-60 object-cover rounded-md mb-4"
+                />
+                {/* Tên sách */}
+                <h3 className="text-lg font-semibold text-center line-clamp-2 h-[48px]">
+                  {item.name}
+                </h3>
+                {/* Tác giả */}
+                <p className="text-sm text-gray-500 text-center mt-2 h-[20px]">
+                  {item.author || "N/A"}
+                </p>
+                {/* Số lượng tồn kho */}
+                <p className="text-red-600 font-bold text-center mt-2 h-[20px]">
+                  Tồn kho: {item.stock || 0}
+                </p>
+                {/* Giá */}
+                <p className="text-green-600 font-bold text-center mt-2 h-[24px]">
+                  {item.price.toLocaleString()}đ
+                </p>
+                {/* Nút Xem chi tiết */}
+                <div className="mt-auto">
+                  <button
+                    onClick={() => navigate(`/product/book-detail/${item._id}`)}
+                    className="w-full bg-blue-500 text-white py-2 rounded-md mt-4 hover:bg-blue-600 transition-all"
+                  >
+                    Xem chi tiết
+                  </button>
                 </div>
-                <p className="mt-4 text-gray-700">{review.text}</p>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500">Chưa có đánh giá nào.</p>
-          )}
+            ))}
+          </div>
+          <button
+            onClick={handleNext}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white p-3 rounded-full shadow-md hover:bg-blue-600"
+          >
+            <FaChevronRight size={24} />
+          </button>
         </div>
       </div>
     </div>

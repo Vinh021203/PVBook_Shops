@@ -48,11 +48,11 @@ const Footer = () => {
             <div className="space-y-4">
               <p className="flex items-start space-x-3">
                 <span className="font-medium min-w-[80px]">Địa chỉ:</span>
-                <span className="text-gray-600">70 Lữ Gia, Phường 15, Quận 11, TP.HCM</span>
+                <span className="text-gray-600">MonBay HaLong, Hạ Long, Quảng Ninh</span>
               </p>
               <p className="flex items-center space-x-3">
                 <span className="font-medium min-w-[80px]">Điện thoại:</span>
-                <a href="tel:1900-6750" className="text-gray-600 hover:text-green-600 transition-colors duration-300">1900-6750</a>
+                <a href="tel:1900-6750" className="text-gray-600 hover:text-green-600 transition-colors duration-300">0355.269.422</a>
               </p>
               <p className="flex items-center space-x-3">
                 <span className="font-medium min-w-[80px]">Email:</span>
@@ -80,11 +80,6 @@ const Footer = () => {
             </div>
           </div>
         </div>
-
-        {/* Copyright */}
-        {/* <div className="mt-16 pt-8 border-t border-green-200 text-center">
-          <p className="text-sm text-gray-600">&copy; {new Date().getFullYear()} PVBook Shop. All rights reserved.</p>
-        </div> */}
       </div>
     </footer>
   );

@@ -1,109 +1,104 @@
-import React from "react";
-import { FaStar } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaStar, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SkillBooks = () => {
   const navigate = useNavigate();
+  const [books, setBooks] = useState([]);
+  const categoryName = "Sách Kỹ Năng"; // Tên danh mục "Sách Kỹ Năng"
 
-  const books = [
-    {
-      id: 1,
-      title: "How to Win Friends and Influence People with a Long Title",
-      author: "Dale Carnegie",
-      rating: 4.8,
-      price: "199.000đ",
-      originalPrice: "250.000đ",
-      image: "https://product.hstatic.net/200000612501/product/100-lieu-phap-mat-xa-3d_a2ecf91d425647f3a4273d7ab9cc0050_0d8211fda91f44ce9e906aa697bcfce4_medium.jpg",
-    },
-    {
-      id: 2,
-      title: "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones",
-      author: "James Clear",
-      rating: 4.7,
-      price: "289.000đ",
-      originalPrice: "350.000đ",
-      image: "https://product.hstatic.net/200000612501/product/100-lieu-phap-mat-xa-3d_a2ecf91d425647f3a4273d7ab9cc0050_0d8211fda91f44ce9e906aa697bcfce4_medium.jpg",
-    },
-    {
-      id: 3,
-      title: "The 7 Habits of Highly Effective People",
-      author: "Stephen Covey",
-      rating: 4.9,
-      price: "249.000đ",
-      originalPrice: "300.000đ",
-      image: "https://product.hstatic.net/200000612501/product/100-lieu-phap-mat-xa-3d_a2ecf91d425647f3a4273d7ab9cc0050_0d8211fda91f44ce9e906aa697bcfce4_medium.jpg",
-    },
-    {
-      id: 4,
-      title: "The 7 Habits of Highly Effective People",
-      author: "Stephen Covey",
-      rating: 4.9,
-      price: "249.000đ",
-      originalPrice: "300.000đ",
-      image: "https://product.hstatic.net/200000612501/product/100-lieu-phap-mat-xa-3d_a2ecf91d425647f3a4273d7ab9cc0050_0d8211fda91f44ce9e906aa697bcfce4_medium.jpg",
-    },
-  ];
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/products/category", {
+          params: { category: categoryName },
+        });
+        const updatedBooks = response.data.map((book) => ({
+          ...book,
+          originalPrice: Math.ceil(book.price * 1.2),
+          discountPercent: 20,
+        }));
+        setBooks(updatedBooks);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách sách:", error);
+        setBooks([]);
+      }
+    };
+
+    fetchBooks();
+  }, [categoryName]);
 
   return (
-    <div className="bg-white rounded-lg p-4">
-      {/* Header */}
+    <div className="container mx-auto px-4 py-8">
+      {/* Tiêu đề với nút Xem tất cả */}
       <div className="flex justify-between items-center mb-4 border-b-2 border-blue-600 pb-2">
         <h2 className="text-2xl font-bold text-blue-800">Sách Kỹ Năng</h2>
         <button
           onClick={() => navigate("/products")}
-          className="text-sm font-medium text-blue-600 hover:text-blue-800 transition"
+          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition duration-300"
         >
-          Xem tất cả
+          <span className="text-sm font-semibold">Xem tất cả</span>
+          <FaArrowRight />
         </button>
       </div>
 
-      {/* Books Grid */}
+      {/* Danh sách sách */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {books.map((book) => (
-          <div key={book.id} className="bg-white shadow rounded-lg p-4 flex flex-col">
-            {/* Image */}
+          <div
+            key={book._id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden relative flex flex-col items-center hover:shadow-xl transition-shadow duration-300"
+          >
+            {/* Badge giảm giá */}
+            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+              -{book.discountPercent}%
+            </div>
+
+            {/* Hình ảnh sản phẩm */}
             <img
-              src={book.image}
-              alt={book.title}
-              className="w-full h-[200px] object-cover rounded mb-4"
+              src={
+                book.image
+                  ? `http://localhost:5000${book.image}`
+                  : "https://via.placeholder.com/150"
+              }
+              alt={book.name}
+              className="w-full h-[200px] object-cover"
             />
-            {/* Title */}
-            <h3
-              className="text-lg font-semibold text-gray-800 mb-2"
-              style={{
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {book.title}
-            </h3>
-            {/* Author */}
-            <p className="text-sm text-gray-600 mb-2">{book.author}</p>
-            {/* Rating */}
-            <div className="flex items-center mb-2">
-              <FaStar className="text-yellow-400" />
-              <span className="text-sm text-gray-600 ml-1">{book.rating}</span>
+
+            {/* Thông tin sản phẩm */}
+            <div className="p-4 flex flex-col w-full">
+              <h3 className="text-lg font-semibold text-gray-800 truncate">{book.name}</h3>
+              <p className="text-sm text-gray-600 truncate">{book.author}</p>
+              <div className="flex items-center mt-2">
+                <FaStar className="text-yellow-400" />
+                <span className="text-sm text-gray-600 ml-1">4.5</span>
+              </div>
+
+              {/* Giá sản phẩm */}
+              <div className="mt-4">
+                <span className="text-sm text-gray-400 line-through">
+                  {book.originalPrice?.toLocaleString()}đ
+                </span>
+                <span className="ml-2 text-lg font-bold text-red-600">
+                  {book.price?.toLocaleString()}đ
+                </span>
+              </div>
+
+              {/* Nút Xem thêm */}
+              <button
+                onClick={() => navigate(`/product/book-detail/${book._id}`)}
+                className="mt-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
+              >
+                Xem thêm
+              </button>
             </div>
-            {/* Price */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-400 line-through">{book.originalPrice}</span>
-              <span className="ml-2 text-lg font-bold text-red-600">{book.price}</span>
-            </div>
-            {/* Button */}
-            <button
-              onClick={() => navigate("/products")}
-              className="mt-auto py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Xem thêm
-            </button>
           </div>
         ))}
       </div>
 
-      {/* Banner */}
-      <div className="relative bg-blue-100 rounded-md overflow-hidden shadow-md group">
+      {/* Banner khuyến mãi */}
+      <div className="relative bg-blue-100 rounded-md overflow-hidden shadow-md group mt-8">
         <img 
           src="https://thietkelogo.edu.vn/uploads/images/thiet-ke-do-hoa-khac/banner-sach/7.png" 
           alt="Khuyến mãi hấp dẫn" 

@@ -1,70 +1,105 @@
-import React from "react";
-import { FaStar } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaStar, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ProgrammingBooks = () => {
   const navigate = useNavigate();
+  const [books, setBooks] = useState([]);
+  const categoryName = "Sách Lập Trình"; // Tên danh mục "Sách Lập Trình"
 
-  const books = [
-    { id: 1, title: "The Art of Programming", author: "Robert C. Martin", rating: 4.5, price: "299.000đ", originalPrice: "399.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 2, title: "Clean Code", author: "Robert C. Martin", rating: 4.7, price: "349.000đ", originalPrice: "450.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 3, title: "JavaScript The Good Parts", author: "Douglas Crockford", rating: 4.8, price: "259.000đ", originalPrice: "350.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 4, title: "You Don't Know JS", author: "Kyle Simpson", rating: 4.6, price: "299.000đ", originalPrice: "399.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 5, title: "JavaScript Patterns", author: "Stoyan Stefanov", rating: 4.4, price: "279.000đ", originalPrice: "349.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 6, title: "Effective Java", author: "Joshua Bloch", rating: 4.9, price: "319.000đ", originalPrice: "399.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 7, title: "Programming Pearls", author: "Jon Bentley", rating: 4.3, price: "249.000đ", originalPrice: "329.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-    { id: 8, title: "Algorithms", author: "Robert Sedgewick", rating: 4.5, price: "299.000đ", originalPrice: "399.000đ", image: "https://product.hstatic.net/200000612501/product/tro_choi_cua_ripley_a4f8d20f25b140fe95fa6008385167e0_medium.jpg" },
-  ];
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/products/category", {
+          params: { category: categoryName },
+        });
+        const updatedBooks = response.data.map((book) => ({
+          ...book,
+          originalPrice: Math.ceil(book.price * 1.2),
+          discountPercent: 20,
+        }));
+        setBooks(updatedBooks);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách sách:", error);
+        setBooks([]);
+      }
+    };
+
+    fetchBooks();
+  }, [categoryName]);
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Tiêu đề với nút Xem tất cả */}
       <div className="flex justify-between items-center mb-4 border-b-2 border-green-600 pb-2">
         <h2 className="text-2xl font-bold text-green-800">Sách Lập Trình</h2>
+        <button
+          onClick={() => navigate("/products")}
+          className="flex items-center space-x-2 text-green-600 hover:text-blue-800 transition duration-300"
+        >
+          <span className="text-sm font-semibold">Xem tất cả</span>
+          <FaArrowRight />
+        </button>
       </div>
+
+      {/* Danh sách sách */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {books.map((book) => (
           <div
-            key={book.id}
-            className="bg-white shadow rounded-lg overflow-hidden flex flex-col items-center"
+            key={book._id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden relative flex flex-col items-center hover:shadow-xl transition-shadow duration-300"
           >
+            {/* Phần giảm giá */}
+            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+              -{book.discountPercent}%
+            </div>
+
+            {/* Hình ảnh sản phẩm */}
             <img
-              src={book.image}
-              alt={book.title}
-              className="object-cover"
-              style={{ width: "100px", height: "200px" }} // Đặt kích thước ảnh
+              src={
+                book.image
+                  ? `http://localhost:5000${book.image}`
+                  : "https://via.placeholder.com/150"
+              }
+              alt={book.name}
+              className="object-cover w-full h-72"
             />
+
+            {/* Thông tin sản phẩm */}
             <div className="p-4 flex flex-col w-full">
-              <h3 className="text-lg font-semibold text-gray-800 truncate">{book.title}</h3>
+              <h3 className="text-lg font-semibold text-gray-800 truncate">{book.name}</h3>
               <p className="text-sm text-gray-600 truncate">{book.author}</p>
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400" />
-                <span className="text-sm text-gray-600 ml-1">{book.rating}</span>
+                <span className="text-sm text-gray-600 ml-1">4.5</span>
               </div>
-              <div className="flex justify-between items-center mt-4">
-                <div>
-                  <span className="text-sm text-gray-400 line-through">{book.originalPrice}</span>
-                  <span className="ml-2 text-lg font-bold text-red-600">{book.price}</span>
-                </div>
-                <button
-                  onClick={() => navigate("/products")}
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Xem thêm
-                </button>
+
+              {/* Giá sản phẩm */}
+              <div className="mt-4">
+                <span className="text-sm text-gray-400 line-through">
+                  {book.originalPrice?.toLocaleString()}đ
+                </span>
+                <span className="ml-2 text-lg font-bold text-red-600">
+                  {book.price?.toLocaleString()}đ
+                </span>
               </div>
+
+              {/* Nút Xem thêm */}
+              <button
+                onClick={() => navigate(`/product/book-detail/${book._id}`)}
+                className="mt-4 px-3 py-2 w-full bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white font-semibold rounded-md shadow-lg hover:from-green-500 hover:to-green-700 hover:scale-105 transform transition duration-300 flex items-center justify-center"
+              >
+                <span className="mr-2">Xem thêm</span>
+                <FaArrowRight />
+              </button>
             </div>
           </div>
         ))}
       </div>
-      <div className="text-center mt-8 mb-8">
-        <button
-          onClick={() => navigate("/products")}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Xem tất cả
-        </button>
-      </div>
-      <div className="relative bg-green-100 rounded-lg overflow-hidden shadow-md group">
+
+      {/* Phần quảng cáo khuyến mãi */}
+      <div className="relative bg-green-100 rounded-lg overflow-hidden shadow-md group mt-8">
         <img 
           src="https://thietkelogo.edu.vn/uploads/images/thiet-ke-do-hoa-khac/banner-sach/3.jpg" 
           alt="Khuyến mãi đặc biệt" 

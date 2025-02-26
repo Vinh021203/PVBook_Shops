@@ -1,97 +1,99 @@
-import React, { useState } from "react";
-import { FaSort, FaFilter } from "react-icons/fa";
+import React, { useState, useEffect, useCallback } from "react";
+import { FaFilter, FaSadTear } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
 
-const DiscountedProducts = () => {
+const DiscountedProducts = ({
+  searchQuery,
+  selectedCategory,
+  selectedAuthor,
+  filters,
+  selectedPriceRange,
+}) => {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortType, setSortType] = useState("default");
+  const [isNotFound, setIsNotFound] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const navigate = useNavigate();
 
-  const initialProducts = [
-    {
-      id: 1,
-      name: "The Art of Programming",
-      author: "Donald Knuth",
-      originalPrice: 59.99 * 24000, // Converted to VND
-      discountedPrice: 39.99 * 24000, // Converted to VND
-      discount: 33,
-      image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c",
-      dateAdded: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "Business Strategy Guide",
-      author: "Michael Porter",
-      originalPrice: 49.99 * 24000,
-      discountedPrice: 37.99 * 24000,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1589998059171-988d887df646",
-      dateAdded: "2024-01-20",
-    },
-    {
-      id: 3,
-      name: "Creative Writing Manual",
-      author: "Natalie Goldberg",
-      originalPrice: 39.99 * 24000,
-      discountedPrice: 26.99 * 24000,
-      discount: 33,
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
-      dateAdded: "2024-01-10",
-    },
-    {
-      id: 4,
-      name: "Modern Philosophy",
-      author: "Immanuel Kant",
-      originalPrice: 45.99 * 24000,
-      discountedPrice: 34.99 * 24000,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-      dateAdded: "2024-01-25",
-    },
-    {
-      id: 5,
-      name: "World History Encyclopedia",
-      author: "Peter Stearns",
-      originalPrice: 79.99 * 24000,
-      discountedPrice: 55.99 * 24000,
-      discount: 31,
-      image: "https://images.unsplash.com/photo-1553729784-e91953dec042",
-      dateAdded: "2024-01-18",
-    },
-    {
-      id: 6,
-      name: "Science Fiction Collection",
-      author: "Isaac Asimov",
-      originalPrice: 55.99 * 24000,
-      discountedPrice: 41.99 * 24000,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1509266272358-7701da638078",
-      dateAdded: "2024-01-22",
-    },
-    {
-      id: 7,
-      name: "Cooking Masterclass",
-      author: "Gordon Ramsay",
-      originalPrice: 49.99 * 24000,
-      discountedPrice: 35.99 * 24000,
-      discount: 29,
-      image: "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0",
-      dateAdded: "2024-01-12",
-    },
-    {
-      id: 8,
-      name: "Digital Marketing Guide",
-      author: "Seth Godin",
-      originalPrice: 69.99 * 24000,
-      discountedPrice: 48.99 * 24000,
-      discount: 30,
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
-      dateAdded: "2024-01-28",
-    },
-  ];
+  // Fetch sản phẩm từ API
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setIsNotFound(false);
 
-  const [products, setProducts] = useState(initialProducts);
+    try {
+      let response;
+
+      if (selectedCategory) {
+        response = await axios.get("/products/category", {
+          params: { category: selectedCategory },
+        });
+      } else if (selectedAuthor?.length) {
+        response = await axios.get("/products", {
+          params: { authors: selectedAuthor.join(",") },
+        });
+      } else {
+        response = await axios.get("/products");
+      }
+
+      const backendProducts = response.data.map((product) => ({
+        id: product._id,
+        name: product.name,
+        author: product.author,
+        rating: product.rating || Math.floor(Math.random() * 5) + 1,
+        reviews: product.reviews || Math.floor(Math.random() * 100) + 1,
+        originalPrice: Math.ceil(product.price * 1.2),
+        discountedPrice: Math.ceil(product.price * 0.8),
+        discount: product.discount || 20,
+        image: product.image,
+        dateAdded: product.createdAt,
+      }));
+
+      setProducts(backendProducts);
+      setFilteredProducts(backendProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+      setFilteredProducts([]);
+      setIsNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCategory, selectedAuthor]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts, filters]);
+
+  useEffect(() => {
+    let filtered = products;
+
+    if (selectedPriceRange) {
+      const { min, max } = selectedPriceRange;
+      filtered = filtered.filter(
+        (product) => product.discountedPrice >= min && product.discountedPrice <= max
+      );
+    }
+
+    if (searchQuery) {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (product) =>
+          product.name.toLowerCase().includes(lowerCaseQuery) ||
+          product.author.toLowerCase().includes(lowerCaseQuery)
+      );
+    }
+
+    setFilteredProducts(filtered);
+    setIsNotFound(filtered.length === 0);
+  }, [searchQuery, selectedPriceRange, products]);
 
   const sortProducts = (type) => {
     setSortType(type);
-    let sortedProducts = [...products];
+    let sortedProducts = [...filteredProducts];
 
     switch (type) {
       case "nameAsc":
@@ -110,31 +112,37 @@ const DiscountedProducts = () => {
         sortedProducts.sort((a, b) => b.discountedPrice - a.discountedPrice);
         break;
       default:
-        sortedProducts = initialProducts;
+        break;
     }
 
-    setProducts(sortedProducts);
+    setFilteredProducts(sortedProducts);
   };
 
-  const SortButton = ({ type, label }) => (
-    <button
-      onClick={() => sortProducts(type)}
-      className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-        sortType === type
-          ? "bg-blue-600 text-white"
-          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-      }`}
-      aria-label={`Sort by ${label}`}
-    >
-      <span className="flex items-center gap-2">
-        {label} <FaSort />
-      </span>
-    </button>
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
-  const averagePrice = Math.round(
-    products.reduce((sum, product) => sum + product.discountedPrice, 0) / products.length
-  );
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  if (loading) {
+    return <div className="text-center">Loading...</div>;
+  }
+
+  if (isNotFound) {
+    return (
+      <div className="text-center flex flex-col items-center justify-center h-96 text-red-600">
+        <FaSadTear className="text-6xl mb-4 animate-pulse" />
+        <h1 className="text-3xl font-bold">404</h1>
+        <p className="text-lg">Không tìm thấy sản phẩm nào</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -144,58 +152,130 @@ const DiscountedProducts = () => {
           <FaFilter className="text-blue-600" />
         </div>
         <div className="flex flex-wrap gap-4">
-          <SortButton type="nameAsc" label="Tên A-Z" />
-          <SortButton type="nameDesc" label="Tên Z-A" />
-          <SortButton type="newest" label="Hàng mới" />
-          <SortButton type="priceLow" label="Giá thấp đến cao" />
-          <SortButton type="priceHigh" label="Giá cao xuống thấp" />
+          <button
+            onClick={() => sortProducts("nameAsc")}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              sortType === "nameAsc"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+          >
+            Tên A-Z
+          </button>
+          <button
+            onClick={() => sortProducts("nameDesc")}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              sortType === "nameDesc"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+          >
+            Tên Z-A
+          </button>
+          <button
+            onClick={() => sortProducts("newest")}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              sortType === "newest"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+          >
+            Hàng mới
+          </button>
+          <button
+            onClick={() => sortProducts("priceLow")}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              sortType === "priceLow"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+          >
+            Giá thấp đến cao
+          </button>
+          <button
+            onClick={() => sortProducts("priceHigh")}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              sortType === "priceHigh"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+          >
+            Giá cao xuống thấp
+          </button>
         </div>
       </div>
-      {/* <div className="mb-8 text-lg font-bold text-gray-700">
-        Trung bình giá: {averagePrice.toLocaleString()} VND
-      </div> */}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:scale-105"
-          >
-            <div className="relative">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-64 object-cover"
-                onError={(e) => {
-                  e.target.src = "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c";
-                }}
-              />
-              <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md">
-                -{product.discount}%
-              </div>
-            </div>
-            <div className="p-4">
-              <h3
-                className="text-sm font-semibold mb-1 text-gray-800 truncate"
-                title={product.name}
-              >
-                {product.name}
-              </h3>
-              <p className="text-gray-500 text-xs mb-2">{product.author}</p>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 line-through">
-                  {product.originalPrice.toLocaleString()} VND
-                </span>
-                <span className="text-xl font-bold text-blue-600">
-                  {product.discountedPrice.toLocaleString()} VND
-                </span>
-              </div>
-              <button className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
-                Xem thêm
-              </button>
-            </div>
-          </div>
+        {paginatedProducts.map((product) => (
+          <ProductCard key={product.id} product={product} navigate={navigate} />
         ))}
+      </div>
+      <div className="flex justify-center mt-6">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={`mx-1 px-3 py-1 rounded-md ${
+              currentPage === index + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Component hiển thị sản phẩm
+const ProductCard = ({ product, navigate }) => {
+  const imageUrl = product.image
+    ? product.image.startsWith("http")
+      ? product.image
+      : `http://localhost:5000${product.image}`
+    : "https://via.placeholder.com/150";
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
+      <div className="relative">
+        <img
+          src={imageUrl}
+          alt={product.name}
+          className="w-full object-cover h-[300px]"
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/150";
+          }}
+        />
+        {product.discount > 0 && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-md font-bold text-sm">
+            Giảm {product.discount}%
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h3>
+        {/* Tác giả với giới hạn chiều dài và thêm dấu "..." */}
+        <p className="text-sm text-gray-600 truncate" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          Tác giả: {product.author}
+        </p>
+        <p className="text-sm text-gray-600">
+          Xếp hạng: {product.rating} ⭐ ({product.reviews} đánh giá)
+        </p>
+        <div className="mb-4">
+          <span className="text-lg font-bold text-red-600">
+            {product.discountedPrice?.toLocaleString()} đ
+          </span>
+          <span className="ml-2 text-sm text-gray-400 line-through">
+            {product.originalPrice?.toLocaleString()} đ
+          </span>
+        </div>
+        <button
+          onClick={() => navigate(`/product/book-detail/${product.id}`)}
+          className="w-full px-3 py-2 bg-green-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
+        >
+          Xem thêm
+        </button>
       </div>
     </div>
   );

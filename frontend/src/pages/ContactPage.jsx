@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUser, FaPhone, FaMapMarkerAlt, FaClock, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaPhone, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,7 @@ const ContactPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -21,21 +22,48 @@ const ContactPage = () => {
     }
     if (!formData.address.trim()) newErrors.address = "Địa chỉ là bắt buộc";
     if (!formData.workingHours.trim()) newErrors.workingHours = "Thời gian làm việc là bắt buộc";
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSuccessMessage(""); // Reset thông báo
+
     if (validateForm()) {
-      console.log("Form submitted:", formData);
+      try {
+        const response = await fetch("http://localhost:5000/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setSuccessMessage("Thông tin đã được gửi thành công!");
+          setFormData({ name: "", phone: "", address: "", workingHours: "" }); // Reset form
+
+          // Tự động ẩn thông báo sau 3 giây
+          setTimeout(() => {
+            setSuccessMessage("");
+          }, 3000);
+        } else {
+          alert(`Lỗi: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Đã xảy ra lỗi khi gửi thông tin, vui lòng thử lại.");
+      }
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -50,9 +78,7 @@ const ContactPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column */}
           <div className="space-y-8">
-            {/* Store Information */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Thông tin cửa hàng</h2>
               <div className="space-y-6">
@@ -76,7 +102,6 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -146,10 +171,14 @@ const ContactPage = () => {
                   Gửi
                 </button>
               </form>
+              {successMessage && (
+                <p className="mt-4 text-sm text-green-500 transition-opacity duration-500 ease-in-out">
+                  {successMessage}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Right Column - Map Section */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full min-h-[800px]">
             <iframe
               title="Halong Bay Location"

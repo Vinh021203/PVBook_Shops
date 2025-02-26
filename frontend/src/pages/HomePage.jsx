@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+// import React, { useState, useEffect } from "react";
 import Slider from "../components/Slider"; // Nếu Slider nằm trong src/components
 import Categories from "../components/Categories"; // Nếu FruitGallery nằm trong src/components
 import MemorableProductDisplay from "../components/MemorableProductDisplay";
@@ -10,7 +10,7 @@ import ScienceBooks from "../components/ScienceBooks";
 
 const Home = () => {
   return (
-    <div className="">
+    <div className="bg-gradient-to-r from-green-100 via-teal-100 to-blue-100 animate-gradient-x min-h-screen">
       <Slider />
       <Categories />
       <MemorableProductDisplay />
